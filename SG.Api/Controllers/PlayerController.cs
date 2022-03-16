@@ -2,9 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SG.Api.Authentication;
-using SG.Api.Models;
-using SG.Core.Features.DailySummaries;
-using SG.Core.Shared.Models;
+using SG.Core.Features.EndRoundInfo;
+using SG.Core.Features.Log;
+using SG.Core.Features.Operators;
+using SG.Core.Features.ResultApiCommunicators;
 
 namespace SG.Api.Controllers
 {
@@ -13,35 +14,60 @@ namespace SG.Api.Controllers
     public class PlayerController : ControllerBase
     {
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
-        private readonly IDailySummaryService dailySummaryService;
+        private readonly IResultApiService resultApiService;
+        private readonly IOperatorDataService operatorDataService;
+        private readonly ILogService logService;
 
-        public PlayerController(IOperatorRequestAuthentication operatorRequestAuthentication, IDailySummaryService dailySummaryService)
+        public PlayerController(
+            IOperatorRequestAuthentication operatorRequestAuthentication,
+            IResultApiService resultApiService,
+            IOperatorDataService operatorDataService,
+            ILogService logService)
         {
             this.operatorRequestAuthentication = operatorRequestAuthentication;
-            this.dailySummaryService = dailySummaryService;
+            this.resultApiService = resultApiService;
+            this.operatorDataService = operatorDataService;
+            this.logService = logService;
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> RetrieveEndRoundInfo([FromBody] DailySummaryRequest model)
+        public async Task<IActionResult> RetrieveEndRoundInfo([FromBody] Models.EndRoundInfoRequest model)
         {
             if (ModelState.IsValid)
             {
                 if (await operatorRequestAuthentication.Verify(model.Auth.OperatorId, Request))
                 {
-                    var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
-                    result.Seq = model.Seq;
+                    var @operator = await operatorDataService.GetById(model.Auth.OperatorId);
 
-                    return Ok(new SGResponse<DailySummaryResult>
-                    {
-                        TimeStamp = DateTimeOffset.UtcNow,
-                        Result = result
-                    });
+                    var requestTime = DateTimeOffset.UtcNow;
+                    var response = await resultApiService.RetrieveEndRoundInfoAsync(
+                        new EndRoundInfoRequest(
+                            model.GameRoundId,
+                            model.GameTypeId,
+                            model.PlayerId,
+                            model.SiteId,
+                            model.Auth.OperatorId,
+                            @operator.SecretKey,
+                            model.FreeBet));
+
+                    response.Result.Seq = model.Seq;
+
+                    await WriteRetrieveEndRoundLog(requestTime, model, response.Result);
+                    return Ok(response);
                 }
+
                 return Unauthorized();
             }
 
             return BadRequest();
+        }
+
+        private Task WriteRetrieveEndRoundLog(DateTimeOffset requestTime, Models.EndRoundInfoRequest request, EndRoundInfoResult result)
+        {
+            var log = new SBLog(request, result, requestTime, DateTimeOffset.UtcNow);
+
+            return logService.LogRetrieveEndRoundAsync(log);
         }
     }
 }

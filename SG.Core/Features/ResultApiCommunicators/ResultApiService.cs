@@ -12,7 +12,7 @@ namespace SG.Core.Features.ResultApiCommunicators
 {
     public interface IResultApiService
     {
-        Task<SGResponse<EndRoundInfoResult>> RetrieveEndGameInfoAsync(EndRoundInfoRequest request);
+        Task<SGResponse<EndRoundInfoResult>> RetrieveEndRoundInfoAsync(EndRoundInfoRequest request);
     }
 
     public class ResultApiService : IResultApiService
@@ -26,7 +26,7 @@ namespace SG.Core.Features.ResultApiCommunicators
             this.apiEndPoints = apiEndPoints;
         }
 
-        public Task<SGResponse<EndRoundInfoResult>> RetrieveEndGameInfoAsync(EndRoundInfoRequest request)
+        public Task<SGResponse<EndRoundInfoResult>> RetrieveEndRoundInfoAsync(EndRoundInfoRequest request)
           => Post<EndRoundInfoResult>(apiEndPoints.EndRoundInfo, request);
 
         public async Task<SGResponse<T>> Post<T>(string apiEndpoint, EndRoundInfoRequest request) where T : SGResult, new()

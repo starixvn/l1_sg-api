@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using SG.Api.Authentication;
 using SG.Core.Features.DailySummaries;
+using SG.Core.Features.Log;
 using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
 
@@ -33,6 +34,9 @@ namespace SG.Api.Extensions
 
             services.AddScoped<IDailySummaryDataAccess, DailySummaryDataAccess>();
             services.AddScoped<IDailySummaryService, DailySummaryService>();
+
+            services.AddScoped<ILogDataAccess, LogDataAccess>();
+            services.AddScoped<ILogService, LogService>();
         }
 
         public static void AddResultApiServices(this IServiceCollection services, IConfiguration configuration)

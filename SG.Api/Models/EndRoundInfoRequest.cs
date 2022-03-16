@@ -1,6 +1,8 @@
-﻿namespace SG.Api.Models
+﻿using SG.Core.Shared.Models;
+
+namespace SG.Api.Models
 {
-    public class EndRoundInfoRequest
+    public class EndRoundInfoRequest : OperatorRequest
     {
         public Auth Auth { get; set; }
 
@@ -11,8 +13,6 @@
         public int PlayerId { get; set; }
 
         public string SiteId { get; set; }
-
-        public string Seq { get; set; }
 
         public bool FreeBet { get; set; }
     }
