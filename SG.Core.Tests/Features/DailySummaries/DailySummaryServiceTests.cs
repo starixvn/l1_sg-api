@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Xunit2;
@@ -24,9 +22,8 @@ namespace SG.Core.Tests.Features.DailySummaries
             dailySummaryService = new DailySummaryService(dataAccess);
         }
 
-
         [Theory, AutoData]
-        public async Task Get_ValidInputData_ReturnCorrectData(DateTimeOffset date ,string operatorId)
+        public async Task Get_ValidInputData_ReturnCorrectData(DateTimeOffset date, string operatorId)
         {
             // Arrange
             dataAccess.Get(date, operatorId).Returns(fixture.Create<IEnumerable<DailySummary>>());

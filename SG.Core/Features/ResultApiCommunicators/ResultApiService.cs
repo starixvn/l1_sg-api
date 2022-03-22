@@ -19,11 +19,13 @@ namespace SG.Core.Features.ResultApiCommunicators
     {
         private readonly HttpClient httpClient;
         private readonly ResultApiEndPoints apiEndPoints;
+        private readonly ISentryClient sentryClient;
 
-        public ResultApiService(HttpClient httpClient, ResultApiEndPoints apiEndPoints)
+        public ResultApiService(HttpClient httpClient, ResultApiEndPoints apiEndPoints, ISentryClient sentryClient)
         {
             this.httpClient = httpClient;
             this.apiEndPoints = apiEndPoints;
+            this.sentryClient = sentryClient;
         }
 
         public Task<SGResponse<EndRoundInfoResult>> RetrieveEndRoundInfoAsync(EndRoundInfoRequest request)
@@ -46,7 +48,7 @@ namespace SG.Core.Features.ResultApiCommunicators
 
             var failureResponse = await CreateErrorResponse<T>(response);
 
-            SentrySdk.CaptureMessage(
+            sentryClient.CaptureMessage(
                 $"Request to Result API's {apiEndpoint} failed at {DateTimeOffset.UtcNow} - {failureResponse.Result.ErrorDescription}",
                 SentryLevel.Warning);
 
