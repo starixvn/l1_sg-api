@@ -27,7 +27,7 @@ namespace SG.Api.Tests
             configuration["MongoDBSettings:ConnectionString"].Returns("mongodb://127.0.0.1:27017");
         }
 
-        private void AddResultApiSettingsConfigsSection(IConfiguration configuration)
+        private static void AddResultApiSettingsConfigsSection(IConfiguration configuration)
         {
             var resultApiSettingsSection = Substitute.For<IConfigurationSection>();
 
