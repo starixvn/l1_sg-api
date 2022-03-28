@@ -1,0 +1,5 @@
+include:
+  - project: 'ci/repos-ci/pentagon_l2_sg_api'
+    ref: master
+    file: 'gitlab-ci.yml'
+
