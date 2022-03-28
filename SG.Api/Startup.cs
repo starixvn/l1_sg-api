@@ -43,8 +43,6 @@ namespace SG.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SG.Api v1"));
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
