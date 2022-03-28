@@ -24,7 +24,7 @@ namespace SG.Api
                 {
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSentry(opt => opt.Environment = configuration["Env"]);
-                    webBuilder.UseUrls($"http://0.0.0.0:{configuration["AppSettings:HostingPort"]}");
+                    webBuilder.UseUrls($"http://0.0.0.0:{configuration["HostingPort"]}");
                 });
         }
     }
