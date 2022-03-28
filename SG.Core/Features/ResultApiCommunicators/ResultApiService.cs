@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Sentry;
+using Sentry.Protocol;
 using SG.Core.Features.EndRoundInfo;
 using SG.Core.Shared.Constants;
 using SG.Core.Shared.Models;
