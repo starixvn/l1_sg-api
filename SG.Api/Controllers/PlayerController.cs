@@ -10,6 +10,7 @@ using SG.Core.Features.ResultApiCommunicators;
 namespace SG.Api.Controllers
 {
     [ApiController]
+    [ApiVersion("1.0")]
     [Route("[controller]")]
     public class PlayerController : ControllerBase
     {

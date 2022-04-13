@@ -9,6 +9,7 @@ using SG.Core.Shared.Models;
 namespace SG.Api.Controllers
 {
     [ApiController]
+    [ApiVersion("1.0")]
     [Route("[controller]")]
     public class IntegrityController : ControllerBase
     {

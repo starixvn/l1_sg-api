@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using SG.Core.Shared.Models;
 
 namespace SG.Api.Models
@@ -7,6 +8,7 @@ namespace SG.Api.Models
     {
         public Auth Auth { get; set; }
 
+        [Required]
         public DateTimeOffset SummarizedDate { get; set; }
     }
 }
