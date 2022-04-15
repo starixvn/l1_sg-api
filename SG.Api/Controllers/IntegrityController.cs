@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SG.Api.Authentication;
 using SG.Api.Models;
 using SG.Core.Features.DailySummaries;
 using SG.Core.Shared.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace SG.Api.Controllers
 {
@@ -26,23 +26,24 @@ namespace SG.Api.Controllers
         [Route("[action]")]
         public async Task<IActionResult> DailySummarize([FromBody] DailySummaryRequest model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (await operatorRequestAuthentication.Verify(model.Auth.OperatorId, Request))
-                {
-                    var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
-                    result.Seq = model.Seq;
-
-                    return Ok(new SGResponse<DailySummaryResult>
-                    {
-                        TimeStamp = DateTimeOffset.UtcNow,
-                        Result = result
-                    });
-                }
-                return Unauthorized();
+                return BadRequest();
             }
 
-            return BadRequest();
+            if (await operatorRequestAuthentication.Verify(model.Auth.OperatorId, Request))
+            {
+                var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
+                result.Seq = model.Seq;
+
+                return Ok(new SGResponse<DailySummaryResult>
+                {
+                    TimeStamp = DateTimeOffset.UtcNow,
+                    Result = result
+                });
+            }
+
+            return Unauthorized();
         }
     }
 }

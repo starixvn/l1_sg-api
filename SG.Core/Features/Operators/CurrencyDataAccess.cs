@@ -14,7 +14,7 @@ namespace SG.Core.Features.Operators
     public class CurrencyDataAccess : ICurrencyDataAccess
     {
         private const string collectionName = "currencies";
-        private readonly Collation defaultCollation = new Collation("en", strength: CollationStrength.Secondary);
+        private readonly Collation defaultCollation = new("en", strength: CollationStrength.Secondary);
 
         private readonly IMongoCollection<Currency> currencyCollection;
 

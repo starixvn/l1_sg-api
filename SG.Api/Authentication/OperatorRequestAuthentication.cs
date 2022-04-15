@@ -24,17 +24,17 @@ namespace SG.Api.Authentication
 
         public async Task<bool> Verify(string operatorId, HttpRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Headers["Access-Key"]))
+            {
+                return false;
+            }
+
             var @operator = await operatorDataService.GetById(operatorId);
 
             if (@operator != null)
             {
                 var secretKey = @operator.SecretKey;
                 var accessKey = request.Headers["Access-Key"];
-
-                if (string.IsNullOrWhiteSpace(accessKey))
-                {
-                    return false;
-                }
 
                 request.Body.Seek(0, SeekOrigin.Begin);
                 var streamData = new byte[request.Body.Length];
