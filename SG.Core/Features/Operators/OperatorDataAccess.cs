@@ -14,18 +14,18 @@ namespace SG.Core.Features.Operators
     public class OperatorDataAccess : IOperatorDataAccess
     {
         private const string collectionName = "partners";
-        private readonly IMongoCollection<Operator> partnerCollection;
+        private readonly IMongoCollection<Operator> operatorCollection;
 
         public OperatorDataAccess(IMongoClient mongoClient)
         {
             var database = mongoClient.GetDatabase(MongoDatabases.Minigame);
-            partnerCollection = database.GetCollection<Operator>(collectionName);
+            operatorCollection = database.GetCollection<Operator>(collectionName);
         }
 
         public async Task<Operator> GetById(string operatorId) =>
-            (await partnerCollection.FindAsync(x => x.PartnerId == operatorId)).FirstOrDefault();
+            (await operatorCollection.FindAsync(x => x.PartnerId == operatorId)).FirstOrDefault();
 
         public async Task<bool> Verify(string operatorId, string secretKey)
-        => (await partnerCollection.CountDocumentsAsync(x => x.PartnerId == operatorId && x.SecretKey == secretKey)) > 0;
+        => (await operatorCollection.CountDocumentsAsync(x => x.PartnerId == operatorId && x.SecretKey == secretKey)) > 0;
     }
 }

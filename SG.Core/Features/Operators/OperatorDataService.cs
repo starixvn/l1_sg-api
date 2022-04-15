@@ -7,6 +7,8 @@ namespace SG.Core.Features.Operators
         Task<Operator> GetById(string operatorId);
 
         Task<bool> VerifyWithCurrency(string operatorId, string currency);
+
+        Task<Currency> GetCurrency(string operatorId, string currencyName);
     }
 
     public class OperatorDataService : IOperatorDataService
@@ -25,5 +27,10 @@ namespace SG.Core.Features.Operators
 
         public Task<bool> VerifyWithCurrency(string operatorId, string currency)
             => currencyDataAccess.Verify(operatorId, currency);
+
+        public Task<Currency> GetCurrency(string operatorId, string currencyName)
+            => string.IsNullOrWhiteSpace(operatorId) || string.IsNullOrWhiteSpace(currencyName)
+            ? Task.FromResult<Currency>(default)
+            : currencyDataAccess.Get(operatorId, currencyName);
     }
 }
