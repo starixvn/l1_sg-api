@@ -1,0 +1,12 @@
+{
+  "ServerUri": "https://sonarqube.lumigame.com/",
+  "Organization": null,
+  "ProjectKey": "l2-sg-api",
+  "ProjectName": "l2-sg-api",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AXSuqrHSMkh2CgVkmwi1",
+      "ProfileTimestamp": "2021-12-19T13:28:35Z"
+    }
+  }
+}
