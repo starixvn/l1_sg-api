@@ -52,8 +52,7 @@ namespace SG.Api.Controllers
                         model.PlayerId,
                         model.SiteId,
                         model.Auth.OperatorId,
-                        @operator.SecretKey,
-                        model.FreeBet));
+                        @operator.SecretKey));
 
                 response.Result.Seq = model.Seq;
 
