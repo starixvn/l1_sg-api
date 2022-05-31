@@ -5,8 +5,10 @@ using MongoDB.Driver;
 using SG.Api.Authentication;
 using SG.Core.Features.DailySummaries;
 using SG.Core.Features.Log;
+using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
+using SG.Core.Shared.Configurations;
 
 namespace SG.Api.Extensions
 {
@@ -37,17 +39,23 @@ namespace SG.Api.Extensions
 
             services.AddScoped<ILogDataAccess, LogDataAccess>();
             services.AddScoped<ILogService, LogService>();
+
+            services.AddScoped<IMemberAuthDataAccess, MemberAuthDataAccess>();
+            services.AddScoped<IMemberAuthService, MemberAuthService>();
         }
 
-        public static void AddResultApiServices(this IServiceCollection services, IConfiguration configuration)
+        public static void AddAppSettings(this IServiceCollection services, IConfiguration configuration)
         {
-            var resultApiSetting = new ResultApiSettings();
+            var appSettings = new AppSettings();
 
-            configuration.GetSection("AppSettings:ResultApiSettings").Bind(resultApiSetting);
-            services.AddSingleton(resultApiSetting.Endpoints);
+            configuration.GetSection("AppSettings").Bind(appSettings);
+            services.AddSingleton<IAppSettings>(appSettings);
+
+           
+            services.AddSingleton(appSettings.ResultApiSettings.Endpoints);
             services.AddHttpClient<IResultApiService, ResultApiService>(httpClient =>
             {
-                httpClient.BaseAddress = resultApiSetting.BaseUrl;
+                httpClient.BaseAddress = appSettings.ResultApiSettings.BaseUrl;
             });
         }
     }
