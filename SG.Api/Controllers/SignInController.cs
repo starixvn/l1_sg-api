@@ -42,7 +42,7 @@ namespace SG.Api.Controllers
             {
                 var partner = await operatorDataService.GetById(model.Auth.OperatorId);
 
-                if (await operatorRequestAuthentication.Verify(partner?.SecretKey, Request))
+                if (await operatorRequestAuthentication.Verify(partner?.PartnerId, Request))
                 {
                     var ip = model.IP.Split(',').FirstOrDefault()?.Trim();
 
