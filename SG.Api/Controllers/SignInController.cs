@@ -12,7 +12,7 @@ using SG.Core.Shared.Constants;
 
 namespace SG.Api.Controllers
 {
-    [ApiController, Authorize]
+    [ApiController]
     [ApiVersion("1.0")]
     [Route("[controller]")]
     public class SignInController : ControllerBase
