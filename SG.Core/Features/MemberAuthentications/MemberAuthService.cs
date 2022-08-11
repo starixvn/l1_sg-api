@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using Sentry;
 using SG.Core.Features.Operators;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
@@ -18,18 +17,15 @@ namespace SG.Core.Features.MemberAuthentications
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
         private readonly IAppSettings appSettings;
-        private readonly ISentryClient sentryClient;
 
         public MemberAuthService(
             IMemberAuthDataAccess memberAuthDataAccess,
             IOperatorDataService operatorDataService,
-            IAppSettings appSettings,
-            ISentryClient sentryClient)
+            IAppSettings appSettings)
         {
             this.memberAuthDataAccess = memberAuthDataAccess;
             this.operatorDataService = operatorDataService;
             this.appSettings = appSettings;
-            this.sentryClient = sentryClient;
         }
 
         public async Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, byte? gameTypeId)

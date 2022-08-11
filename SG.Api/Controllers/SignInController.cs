@@ -31,7 +31,6 @@ namespace SG.Api.Controllers
             this.operatorRequestAuthentication = operatorRequestAuthentication;
         }
 
-        [AllowAnonymous]
         [HttpPost]
         [Route("index")]
         public async Task<IActionResult> Index(SignIn model)

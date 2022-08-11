@@ -27,9 +27,8 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             memberAuthDataAccess = Substitute.For<IMemberAuthDataAccess>();
             operatorDataService = Substitute.For<IOperatorDataService>();
             appSettings = Substitute.For<IAppSettings>();
-            sentryClient = Substitute.For<ISentryClient>();
 
-            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, appSettings, sentryClient);
+            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, appSettings);
         }
 
         [Theory, AutoData]
