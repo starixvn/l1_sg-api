@@ -30,6 +30,7 @@ namespace SG.Api.Tests
         private static void AddResultApiSettingsConfigsSection(IConfiguration configuration)
         {
             var resultApiSettingsSection = Substitute.For<IConfigurationSection>();
+            var appSettingsSection = Substitute.For<IConfigurationSection>();
 
             var endPoints = Substitute.For<IConfigurationSection>();
             var endRoundInfo = Substitute.For<IConfigurationSection>();
@@ -44,11 +45,14 @@ namespace SG.Api.Tests
 
             resultApiSettingsSection.GetChildren().Returns(new List<IConfigurationSection> { baseUrl, endPoints });
 
-            var highStakeSection = Substitute.For<IConfigurationSection>();
-            highStakeSection.Value = "60";
-            resultApiSettingsSection.GetSection("HighStake").Returns(highStakeSection);
+            var tokenExpiredSection = Substitute.For<IConfigurationSection>();
+            tokenExpiredSection.Value = "60";
+            appSettingsSection.GetSection("TokenExpiredSeconds").Returns(tokenExpiredSection);
 
-            configuration.GetSection("AppSettings:ResultApiSettings").Returns(resultApiSettingsSection);
+            appSettingsSection.GetSection("ResultApiSettings").Returns(resultApiSettingsSection);
+            appSettingsSection.GetChildren().Returns(new List<IConfigurationSection> { resultApiSettingsSection, tokenExpiredSection });
+
+            configuration.GetSection("AppSettings").Returns(appSettingsSection);
         }
 
         [Fact]

@@ -26,7 +26,7 @@ namespace SG.Api
         {
             services.AddMongoDB(Configuration);
             services.AddServices();
-            services.AddResultApiServices(Configuration);
+            services.AddAppSettings(Configuration);
 
             services.AddControllers();
 
