@@ -22,7 +22,7 @@ namespace SG.Api.Controllers
         private readonly ILogService logService;
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
 
-        public SignInController(IMemberAuthService memberAuthService, IOperatorDataService operatorDataService, ILogService logService, 
+        public SignInController(IMemberAuthService memberAuthService, IOperatorDataService operatorDataService, ILogService logService,
             IOperatorRequestAuthentication operatorRequestAuthentication)
         {
             this.memberAuthService = memberAuthService;
@@ -38,34 +38,30 @@ namespace SG.Api.Controllers
         {
             var requestTime = DateTimeOffset.UtcNow;
 
-            if (await operatorDataService.VerifyWithCurrency(model.Auth?.OperatorId, model.Currency))
+            if (await operatorDataService.VerifyWithCurrency(model.Auth?.OperatorId, model.Currency)
+                && await operatorRequestAuthentication.Verify(model.Auth?.OperatorId, Request))
             {
-                var partner = await operatorDataService.GetById(model.Auth.OperatorId);
+                var ip = model.IP.Split(',').FirstOrDefault()?.Trim();
 
-                if (await operatorRequestAuthentication.Verify(partner?.PartnerId, Request))
+                var result = await memberAuthService.SignIn(new MemberAuth
                 {
-                    var ip = model.IP.Split(',').FirstOrDefault()?.Trim();
+                    Domain = model.Domain,
+                    BrowserUserAgent = model.BrowserUserAgent,
+                    CurrencyName = model.Currency,
+                    IP = ip,
+                    PlayerId = model.PlayerId,
+                    PlayerName = model.PlayerName,
+                    Language = model.Language,
+                    SiteId = model.SiteId,
+                    OperatorId = model.Auth.OperatorId,
+                    AppType = AppTypes.IsValid(model.AppType) ? model.AppType : AppTypes.SabaClub,
+                    SiteName = model.SiteName,
+                    OperatorToken = model.OperatorToken
+                }, model.GameTypeId);
 
-                    var result = await memberAuthService.SignIn(new MemberAuth
-                    {
-                        Domain = model.Domain,
-                        BrowserUserAgent = model.BrowserUserAgent,
-                        CurrencyName = model.Currency,
-                        IP = ip,
-                        PlayerId = model.PlayerId,
-                        PlayerName = model.PlayerName,
-                        Language = model.Language,
-                        SiteId = model.SiteId,
-                        OperatorId = model.Auth.OperatorId,
-                        AppType = AppTypes.IsValid(model.AppType) ? model.AppType : AppTypes.SabaClub,
-                        SiteName = model.SiteName,
-                        OperatorToken = model.OperatorToken
-                    }, model.GameTypeId);
+                await WriteSignInLog(requestTime, model, result);
 
-                    await WriteSignInLog(requestTime, model, result);
-
-                    return Ok(new Models.SignInResult { RedirectUrl = result.RedirectUrl });
-                }
+                return Ok(new Models.SignInResult { RedirectUrl = result.RedirectUrl });
             }
 
             await WriteSignInLog(requestTime, model, SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize));
