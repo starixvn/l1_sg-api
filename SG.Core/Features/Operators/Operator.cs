@@ -19,6 +19,8 @@ namespace SG.Core.Features.Operators
 
         public string ClubVersionUrl { get; set; }
 
+        public string MegaKenoUrl { get; set; }
+
         public string TestCurrencyUrl { get; set; }
     }
 }
