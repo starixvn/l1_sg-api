@@ -8,6 +8,7 @@ using SG.Api.Models;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Api.Controllers
@@ -21,14 +22,16 @@ namespace SG.Api.Controllers
         private readonly IOperatorDataService operatorDataService;
         private readonly ILogService logService;
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
+        private readonly ISystemSetting sytemSetting;
 
         public SignInController(IMemberAuthService memberAuthService, IOperatorDataService operatorDataService, ILogService logService,
-            IOperatorRequestAuthentication operatorRequestAuthentication)
+            IOperatorRequestAuthentication operatorRequestAuthentication, ISystemSetting sytemSetting)
         {
             this.memberAuthService = memberAuthService;
             this.operatorDataService = operatorDataService;
             this.logService = logService;
             this.operatorRequestAuthentication = operatorRequestAuthentication;
+            this.sytemSetting = sytemSetting;
         }
 
         [HttpPost]
@@ -55,7 +58,9 @@ namespace SG.Api.Controllers
                     OperatorId = model.Auth.OperatorId,
                     AppType = AppTypes.IsValid(model.AppType) ? model.AppType : AppTypes.SabaClub,
                     SiteName = model.SiteName,
-                    OperatorToken = model.OperatorToken
+                    OperatorToken = model.OperatorToken,
+                    IsCash = sytemSetting.SystemType == SystemType.VG2 ? model.IsCash : false,
+                    DisableJackpotGames = sytemSetting.SystemType == SystemType.VG2 ? model.DisableJackpotGames : false
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);

@@ -51,12 +51,19 @@ namespace SG.Api.Extensions
             configuration.GetSection("AppSettings").Bind(appSettings);
             services.AddSingleton<IAppSettings>(appSettings);
 
-           
+
             services.AddSingleton(appSettings.ResultApiSettings.Endpoints);
             services.AddHttpClient<IResultApiService, ResultApiService>(httpClient =>
             {
                 httpClient.BaseAddress = appSettings.ResultApiSettings.BaseUrl;
             });
+        }
+
+        public static void AddSytemSetting(this IServiceCollection services, IConfiguration configuration)
+        {
+            var systemSettings = new SystemSetting(configuration.GetSection("SystemType").Get<string>());
+
+            services.AddSingleton<ISystemSetting>(systemSettings);
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class EndRoundInfoRequest
     {
-        public EndRoundInfoRequest(int gameRoundId, byte gameTypeId, int playerId, string siteId, string operatorId, string operatorSecret)
+        public EndRoundInfoRequest(int gameRoundId, byte gameTypeId, int playerId, string siteId, string operatorId, string operatorSecret, bool? freeBet)
         {
             GameRoundId = gameRoundId;
             GameTypeId = gameTypeId;
@@ -13,6 +13,7 @@
                 OperatorId = operatorId,
                 OperatorSecret = operatorSecret
             };
+            FreeBet = freeBet;
         }
 
         public int GameRoundId { get; }
@@ -24,6 +25,8 @@
         public string SiteId { get; }
 
         public Auth Auth { get; }
+
+        public bool? FreeBet { get; }
     }
 
     public class Auth

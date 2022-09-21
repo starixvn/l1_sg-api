@@ -4,6 +4,8 @@ using SG.Core.Features.EndRoundInfo;
 using SG.Core.Features.Log;
 using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
+using SG.Core.Shared.Configurations;
+using SG.Core.Shared.Constants;
 using System;
 using System.Threading.Tasks;
 
@@ -18,17 +20,20 @@ namespace SG.Api.Controllers
         private readonly IResultApiService resultApiService;
         private readonly IOperatorDataService operatorDataService;
         private readonly ILogService logService;
+        private readonly ISystemSetting sytemSetting;
 
         public PlayerController(
             IOperatorRequestAuthentication operatorRequestAuthentication,
             IResultApiService resultApiService,
             IOperatorDataService operatorDataService,
-            ILogService logService)
+            ILogService logService,
+            ISystemSetting sytemSetting)
         {
             this.operatorRequestAuthentication = operatorRequestAuthentication;
             this.resultApiService = resultApiService;
             this.operatorDataService = operatorDataService;
             this.logService = logService;
+            this.sytemSetting = sytemSetting;
         }
 
         [HttpPost]
@@ -45,6 +50,7 @@ namespace SG.Api.Controllers
                 var @operator = await operatorDataService.GetById(model.Auth.OperatorId);
 
                 var requestTime = DateTimeOffset.UtcNow;
+                bool? freeBet = sytemSetting.SystemType == SystemType.VG2 ? model.FreeBet : null;
                 var response = await resultApiService.RetrieveEndRoundInfoAsync(
                     new EndRoundInfoRequest(
                         model.GameRoundId,
@@ -52,7 +58,8 @@ namespace SG.Api.Controllers
                         model.PlayerId,
                         model.SiteId,
                         model.Auth.OperatorId,
-                        @operator.SecretKey));
+                        @operator.SecretKey,
+                        freeBet));
 
                 response.Result.Seq = model.Seq;
 

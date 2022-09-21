@@ -1,5 +1,7 @@
 include:
-  - project: 'ci/repos-ci/pentagon_l1_sg_api'
+  - project: "ci/repos-ci/pentagon_l1_sg_api"
     ref: master
-    file: 'gitlab-ci.yml'
-
+    file: "gitlab-ci.yml"
+  - project: "ci/repos-ci/pentagon_l2_sg_api"
+    ref: master
+    file: "gitlab-ci-mixing.yml"

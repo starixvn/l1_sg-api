@@ -28,5 +28,9 @@ namespace SG.Api.Models
         public Auth Auth { get; set; }
 
         public string OperatorToken { get; set; }
+
+        public bool DisableJackpotGames { get; set; }
+
+        public bool IsCash { get; set; }
     }
 }

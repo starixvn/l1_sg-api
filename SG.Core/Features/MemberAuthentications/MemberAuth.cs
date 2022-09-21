@@ -49,6 +49,10 @@ namespace SG.Core.Features.MemberAuthentications
 
         public string OperatorToken { get; set; }
 
+        public bool DisableJackpotGames { get; set; }
+
+        public bool IsCash { get; set; }
+
 #pragma warning disable S3874 // "out" and "ref" parameters should not be used
         public void Deconstruct(out string token, out bool isTestCurrency, out string partnerId)
 #pragma warning restore S3874 // "out" and "ref" parameters should not be used

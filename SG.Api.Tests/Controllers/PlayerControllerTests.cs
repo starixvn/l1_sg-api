@@ -9,6 +9,7 @@ using SG.Core.Features.EndRoundInfo;
 using SG.Core.Features.Log;
 using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Models;
 using Xunit;
 using EndRoundInfoRequest = SG.Core.Features.EndRoundInfo.EndRoundInfoRequest;
@@ -23,6 +24,7 @@ namespace SG.Api.Tests.Controllers
         private readonly IOperatorDataService operatorDataService;
         private readonly ILogService logService;
         private readonly Fixture fixture = new();
+        private readonly ISystemSetting systemSetting;
 
         public PlayerControllerTests()
         {
@@ -30,12 +32,13 @@ namespace SG.Api.Tests.Controllers
             resultApiService = Substitute.For<IResultApiService>();
             operatorDataService = Substitute.For<IOperatorDataService>();
             logService = Substitute.For<ILogService>();
+            systemSetting = Substitute.For<ISystemSetting>();
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Headers["Access-Key"] = "Access-Key";
             var controllerContext = new ControllerContext() { HttpContext = httpContext };
 
-            controller = new PlayerController(operatorRequestAuthentication, resultApiService, operatorDataService, logService)
+            controller = new PlayerController(operatorRequestAuthentication, resultApiService, operatorDataService, logService, systemSetting)
             {
                 ControllerContext = controllerContext
             };

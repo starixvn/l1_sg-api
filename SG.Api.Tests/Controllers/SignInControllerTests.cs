@@ -9,6 +9,7 @@ using SG.Api.Models;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 using Xunit;
 
@@ -22,6 +23,7 @@ namespace SG.Api.Tests.Controllers
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
         private readonly SignInController controller;
         private readonly Fixture fixture = new();
+        private readonly ISystemSetting systemSetting;
 
         public SignInControllerTests()
         {
@@ -29,8 +31,9 @@ namespace SG.Api.Tests.Controllers
             operatorDataService = Substitute.For<IOperatorDataService>();
             logService = Substitute.For<ILogService>();
             operatorRequestAuthentication = Substitute.For<IOperatorRequestAuthentication>();
+            systemSetting = Substitute.For<ISystemSetting>();
 
-            controller = new SignInController(memberAuthService, operatorDataService, logService, operatorRequestAuthentication);
+            controller = new SignInController(memberAuthService, operatorDataService, logService, operatorRequestAuthentication, systemSetting);
         }
 
         [Fact]
