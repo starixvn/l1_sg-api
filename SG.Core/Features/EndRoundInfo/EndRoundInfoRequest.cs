@@ -1,4 +1,6 @@
-﻿namespace SG.Core.Features.EndRoundInfo
+﻿using Newtonsoft.Json;
+
+namespace SG.Core.Features.EndRoundInfo
 {
     public class EndRoundInfoRequest
     {
@@ -26,6 +28,7 @@
 
         public Auth Auth { get; }
 
+        [JsonProperty("FreeBet", NullValueHandling = NullValueHandling.Ignore)]
         public bool? FreeBet { get; }
     }
 
