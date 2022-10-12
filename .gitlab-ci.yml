@@ -3,5 +3,5 @@ include:
     ref: updateCIMergeRepo
     file: "gitlab-ci.yml"
   - project: "ci/repos-ci/pentagon_l2_sg_api"
-    ref: master
+    ref: updateCIMergeRepo
     file: "gitlab-ci-mixing.yml"
