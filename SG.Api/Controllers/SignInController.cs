@@ -59,8 +59,8 @@ namespace SG.Api.Controllers
                     AppType = AppTypes.IsValid(model.AppType) ? model.AppType : AppTypes.SabaClub,
                     SiteName = model.SiteName,
                     OperatorToken = model.OperatorToken,
-                    IsCash = sytemSetting.SystemType == SystemType.VG2 ? model.IsCash : false,
-                    DisableJackpotGames = sytemSetting.SystemType == SystemType.VG2 ? model.DisableJackpotGames : false
+                    IsCash = IsVG2System(sytemSetting.SystemType) && model.IsCash,
+                    DisableJackpotGames = IsVG2System(sytemSetting.SystemType) && model.DisableJackpotGames
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
@@ -71,6 +71,11 @@ namespace SG.Api.Controllers
             await WriteSignInLog(requestTime, model, SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize));
 
             return Unauthorized();
+        }
+
+        private static bool IsVG2System(string systemType)
+        {
+            return systemType == SystemType.VG2;
         }
 
         private Task WriteSignInLog(DateTimeOffset requestTime, SignIn model, SingleSignOnResult result)
