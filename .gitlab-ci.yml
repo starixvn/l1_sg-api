@@ -1,6 +1,6 @@
 include:
   - project: "ci/repos-ci/pentagon_l1_sg_api"
-    ref: updateCIMergeRepo
+    ref: master
     file: "gitlab-ci.yml"
   - project: "ci/repos-ci/pentagon_l2_sg_api"
     ref: master
