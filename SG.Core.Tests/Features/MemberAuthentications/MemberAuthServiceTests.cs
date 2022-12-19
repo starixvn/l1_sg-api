@@ -17,7 +17,6 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
         private readonly IAppSettings appSettings;
-        private readonly ISentryClient sentryClient;
         private readonly Fixture fixture = new Fixture();
 
         private readonly MemberAuthService memberAuthService;

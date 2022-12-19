@@ -27,7 +27,7 @@ namespace SG.Core.Features.Operators
         public async Task<bool> Verify(string partnerId, string currencyName)
         => (await currencyCollection.CountDocumentsAsync(
                 currency => currency.PartnerId == partnerId &&
-                            currency.Name == currencyName &&
+                            currency.Name.ToUpperInvariant() == currencyName.ToUpperInvariant() &&
                             currency.Enabled,
                 new CountOptions
                 {
@@ -37,7 +37,7 @@ namespace SG.Core.Features.Operators
         public async Task<Currency> Get(string partnerId, string currencyName)
         => (await currencyCollection.FindAsync(
                 currency => currency.PartnerId == partnerId &&
-                            currency.Name == currencyName &&
+                            currency.Name.ToUpperInvariant() == currencyName.ToUpperInvariant() &&
                             currency.Enabled,
                 new FindOptions<Currency, Currency>
                 {

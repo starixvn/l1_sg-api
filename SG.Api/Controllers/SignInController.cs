@@ -49,7 +49,7 @@ namespace SG.Api.Controllers
                 {
                     Domain = model.Domain,
                     BrowserUserAgent = model.BrowserUserAgent,
-                    CurrencyName = model.Currency,
+                    CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
                     PlayerId = model.PlayerId,
                     PlayerName = model.PlayerName,
