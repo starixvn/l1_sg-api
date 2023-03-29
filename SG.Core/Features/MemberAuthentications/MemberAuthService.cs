@@ -66,6 +66,8 @@ namespace SG.Core.Features.MemberAuthentications
                 token,
                 memberAuth.Language,
                 gameClientUrl.ToString().TrimEnd('/'),
+                memberAuth.ReturnUrl,
+                memberAuth.Ref,
                 isTestCurrency ? partnerId : string.Empty);
         }
 
@@ -92,7 +94,7 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string partnerId = null)
+        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string partnerId = null)
         {
             var clientRedirectUrl = new StringBuilder();
             clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
@@ -105,6 +107,19 @@ namespace SG.Core.Features.MemberAuthentications
             if (!string.IsNullOrWhiteSpace(partnerId))
             {
                 clientRedirectUrl.Append($"&partnerId={partnerId}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(refValue))
+            {
+
+                clientRedirectUrl.Append($"&ref={refValue}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                var returnUrlEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(returnUrl));
+                
+                clientRedirectUrl.Append($"&rurl={returnUrlEncoded}");
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString());

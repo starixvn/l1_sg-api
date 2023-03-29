@@ -32,5 +32,9 @@ namespace SG.Api.Models
         public bool DisableJackpotGames { get; set; }
 
         public bool IsCash { get; set; }
+
+        public string Ref { get; set; }
+
+        public string ReturnUrl { get; set; }
     }
 }

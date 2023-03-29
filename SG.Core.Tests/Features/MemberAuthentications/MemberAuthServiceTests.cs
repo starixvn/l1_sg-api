@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NSubstitute;
-using Sentry;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
 using SG.Core.Shared.Configurations;
@@ -201,6 +201,34 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             Assert.IsType<SingleSignOnResult>(result);
             Assert.Contains($"token={memberAuth.Token}", result.RedirectUrl);
             Assert.Contains($"partnerId={memberAuth.OperatorId}", result.RedirectUrl);
+        }
+
+        [Fact]
+        public async Task SignIn_ExistingRefAndReturnUrl_ShouldCreateSSOResult()
+        {
+            // Arrange
+            var memberAuth = fixture.Create<MemberAuth>();
+            memberAuth.Ref = "d_direct";
+            memberAuth.ReturnUrl = "http://test.com/member";
+
+            operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
+            {
+                ClubVersionUrl = "http://local/",
+                MobiVersionUrl = "http://mobi/",
+                MiniVersionUrl = "http://mini/",
+                TestCurrencyUrl = "http://test/"
+            });
+            operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
+            appSettings.TokenExpiredSeconds.Returns(60);
+            var rurlEncoded = "aHR0cDovL3Rlc3QuY29tL21lbWJlcg==";
+
+            // Act
+            var result = await memberAuthService.SignIn(memberAuth, null);
+
+            // Assert
+            Assert.IsType<SingleSignOnResult>(result);
+            Assert.Contains($"ref={memberAuth.Ref}", result.RedirectUrl);
+            Assert.Contains($"rurl={rurlEncoded}", result.RedirectUrl);
         }
     }
 }
