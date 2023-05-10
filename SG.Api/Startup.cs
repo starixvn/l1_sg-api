@@ -48,10 +48,10 @@ namespace SG.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SG.Api", Version = "v1" });
             });
 
-            if (Configuration.GetSection("Jaeger").Value != null)
+            if (!string.IsNullOrWhiteSpace(Configuration.GetValue<string>("Jaeger:ServiceName")))
             {
                 services.AddOpenTelemetryTracing((builder) => builder
-                            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(this.Configuration.GetValue<string>("Jaeger:ServiceName")))
+                            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Configuration.GetValue<string>("Jaeger:ServiceName")))
                             .AddAspNetCoreInstrumentation((options) => options.Filter = httpContext =>
                             {
                                 // only collect telemetry about HTTP POST requests
