@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using SG.Api.Authentication;
 using SG.Core.Features.DailySummaries;
 using SG.Core.Features.Log;
@@ -23,7 +24,11 @@ namespace SG.Api.Extensions
             };
 
             ConventionRegistry.Register(nameof(camelIgnoringExtraElementConventions), camelIgnoringExtraElementConventions, t => true);
-            services.AddSingleton<IMongoClient>(new MongoClient(configuration["MongoDBSettings:ConnectionString"]));
+
+            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(configuration["MongoDBSettings:ConnectionString"]));
+            clientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
+
+            services.AddSingleton<IMongoClient>(new MongoClient(clientSettings));
         }
 
         public static void AddServices(this IServiceCollection services)
@@ -50,7 +55,6 @@ namespace SG.Api.Extensions
 
             configuration.GetSection("AppSettings").Bind(appSettings);
             services.AddSingleton<IAppSettings>(appSettings);
-
 
             services.AddSingleton(appSettings.ResultApiSettings.Endpoints);
             services.AddHttpClient<IResultApiService, ResultApiService>(httpClient =>
