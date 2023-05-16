@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NSubstitute;
+using Sentry;
 using SG.Core.Features.DailySummaries;
 using SG.Core.Shared.Configurations;
 using Xunit;
@@ -16,14 +17,16 @@ namespace SG.Core.Tests.Features.DailySummaries
         private readonly IDailySummaryService dailySummaryService;
         private readonly IDailySummaryDataAccess dataAccess;
         private readonly IAppSettings appSettings;
+        private readonly ISentryClient sentryClient;
         private readonly Fixture fixture = new();
 
         public DailySummaryServiceTests()
         {
             dataAccess = Substitute.For<IDailySummaryDataAccess>();
             appSettings = Substitute.For<IAppSettings>();
+            sentryClient = Substitute.For<ISentryClient>();
 
-            dailySummaryService = new DailySummaryService(dataAccess, appSettings);
+            dailySummaryService = new DailySummaryService(dataAccess, appSettings, sentryClient);
         }
 
         [Theory, AutoData]
