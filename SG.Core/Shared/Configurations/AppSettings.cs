@@ -1,4 +1,5 @@
-﻿using SG.Core.Features.ResultApiCommunicators;
+﻿using System.Collections.Generic;
+using SG.Core.Features.ResultApiCommunicators;
 
 namespace SG.Core.Shared.Configurations
 {
@@ -7,6 +8,8 @@ namespace SG.Core.Shared.Configurations
         int TokenExpiredSeconds { get; set; }
 
         ResultApiSettings ResultApiSettings { get; set; }
+
+        Dictionary<string, string> DailySummaryConsolidationMapping { get; set; }
     }
 
     public class AppSettings : IAppSettings
@@ -14,5 +17,7 @@ namespace SG.Core.Shared.Configurations
         public int TokenExpiredSeconds { get; set; }
 
         public ResultApiSettings ResultApiSettings { get; set; }
+
+        public Dictionary<string, string> DailySummaryConsolidationMapping { get; set; } = new Dictionary<string, string>();
     }
 }
