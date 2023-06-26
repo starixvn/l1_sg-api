@@ -68,7 +68,9 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                isTestCurrency ? partnerId : string.Empty);
+                memberAuth.AppType,
+                isTestCurrency ? partnerId : string.Empty
+            );
         }
 
         private async Task<Uri> GetRedirectedUrl(MemberAuth memberAuth, bool isTestCurrency)
@@ -94,10 +96,10 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string partnerId = null)
+        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, byte appType, string partnerId = null)
         {
             var clientRedirectUrl = new StringBuilder();
-            clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
+            clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}&appType={appType}");
 
             if (gameTypeId.HasValue)
             {
@@ -111,14 +113,13 @@ namespace SG.Core.Features.MemberAuthentications
 
             if (!string.IsNullOrWhiteSpace(refValue))
             {
-
                 clientRedirectUrl.Append($"&ref={refValue}");
             }
 
             if (!string.IsNullOrWhiteSpace(returnUrl))
             {
                 var returnUrlEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(returnUrl));
-                
+
                 clientRedirectUrl.Append($"&rurl={returnUrlEncoded}");
             }
 
