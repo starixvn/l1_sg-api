@@ -16,7 +16,7 @@ namespace SG.Api
         {
             var configuration = new ConfigurationBuilder()
                  .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                  .Build();
 
             return Host.CreateDefaultBuilder(args)

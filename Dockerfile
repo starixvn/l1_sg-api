@@ -12,7 +12,9 @@ COPY ./SG.Api .
 RUN dotnet publish -r linux-x64 --self-contained false -o /app 
 
 FROM hub.lumigame.com/base/dotnet/core/aspnet:5.0-buster-slim AS base
-
+RUN useradd sg_api_user
+USER sg_api_user
+ 
 WORKDIR /app
 COPY --from=builder /app .
 
