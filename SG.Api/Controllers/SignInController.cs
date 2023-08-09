@@ -60,7 +60,7 @@ namespace SG.Api.Controllers
                     SiteName = model.SiteName,
                     OperatorToken = model.OperatorToken,
                     IsCash = IsVG2System(sytemSetting.SystemType) && model.IsCash,
-                    DisableJackpotGames = IsVG2System(sytemSetting.SystemType) ? model.DisableJackpotGames : true,
+                    DisableJackpotGames = !IsVG2System(sytemSetting.SystemType) || model.DisableJackpotGames,
                     Ref = model.Ref,
                     ReturnUrl = model.ReturnUrl
                 }, model.GameTypeId);
