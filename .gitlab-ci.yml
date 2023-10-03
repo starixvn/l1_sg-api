@@ -1,7 +1,4 @@
 include:
-  - project: "ci/repos-ci/pentagon_l1_sg_api"
-    ref: master
-    file: "gitlab-ci.yml"
-  - project: "ci/repos-ci/pentagon_l2_sg_api"
-    ref: master
-    file: "gitlab-ci-mixing.yml"
+  - project: ci/core-cicd
+    ref: main
+    file: luminet.gitlab-ci.yml
