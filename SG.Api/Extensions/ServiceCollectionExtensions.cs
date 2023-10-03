@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -61,7 +62,9 @@ namespace SG.Api.Extensions
 
         public static void AddSytemSetting(this IServiceCollection services, IConfiguration configuration)
         {
-            var systemSettings = new SystemSetting(configuration.GetSection("SystemType").Get<string>());
+            var systemType = configuration.GetSection("SystemType").Get<string>();
+            var disableJackpotOperators = configuration.GetSection("DisableJackpotOperators").Get<IEnumerable<string>>();
+            var systemSettings = new SystemSetting(systemType, disableJackpotOperators);
 
             services.AddSingleton<ISystemSetting>(systemSettings);
         }

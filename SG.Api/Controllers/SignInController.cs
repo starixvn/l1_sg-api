@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SG.Api.Authentication;
 using SG.Api.Models;
@@ -22,16 +21,16 @@ namespace SG.Api.Controllers
         private readonly IOperatorDataService operatorDataService;
         private readonly ILogService logService;
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
-        private readonly ISystemSetting sytemSetting;
+        private readonly ISystemSetting systemSetting;
 
         public SignInController(IMemberAuthService memberAuthService, IOperatorDataService operatorDataService, ILogService logService,
-            IOperatorRequestAuthentication operatorRequestAuthentication, ISystemSetting sytemSetting)
+            IOperatorRequestAuthentication operatorRequestAuthentication, ISystemSetting systemSetting)
         {
             this.memberAuthService = memberAuthService;
             this.operatorDataService = operatorDataService;
             this.logService = logService;
             this.operatorRequestAuthentication = operatorRequestAuthentication;
-            this.sytemSetting = sytemSetting;
+            this.systemSetting = systemSetting;
         }
 
         [HttpPost]
@@ -59,8 +58,10 @@ namespace SG.Api.Controllers
                     AppType = AppTypes.IsValid(model.AppType) ? model.AppType : AppTypes.SabaClub,
                     SiteName = model.SiteName,
                     OperatorToken = model.OperatorToken,
-                    IsCash = IsVG2System(sytemSetting.SystemType) && model.IsCash,
-                    DisableJackpotGames = !IsVG2System(sytemSetting.SystemType) || model.DisableJackpotGames,
+                    IsCash = IsVG2System(systemSetting.SystemType) && model.IsCash,
+                    DisableJackpotGames = !IsVG2System(systemSetting.SystemType) ||
+                                            systemSetting.DisableJackpotOperators.Any(x => x == model.Auth.OperatorId) || 
+                                            model.DisableJackpotGames,
                     Ref = model.Ref,
                     ReturnUrl = model.ReturnUrl
                 }, model.GameTypeId);
