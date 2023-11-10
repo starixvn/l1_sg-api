@@ -56,7 +56,6 @@ namespace SG.Api.Controllers
                         model.GameRoundId,
                         model.GameTypeId,
                         model.PlayerId,
-                        model.SiteId,
                         model.Auth.OperatorId,
                         @operator.SecretKey,
                         freeBet));
