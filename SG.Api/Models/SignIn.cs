@@ -15,7 +15,7 @@ namespace SG.Api.Models
 
         public string IP { get; set; }
 
-        public int PlayerId { get; set; }
+        public string PlayerId { get; set; }
 
         public string PlayerName { get; set; }
 

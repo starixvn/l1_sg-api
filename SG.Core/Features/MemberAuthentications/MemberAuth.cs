@@ -23,7 +23,7 @@ namespace SG.Core.Features.MemberAuthentications
 
         public string Language { get; set; }
 
-        public int PlayerId { get; set; }
+        public string PlayerId { get; set; }
 
         public string PlayerName { get; set; }
 
@@ -56,6 +56,9 @@ namespace SG.Core.Features.MemberAuthentications
         public string Ref { get; set; }
 
         public string ReturnUrl { get; set; }
+
+        public string OperatorPlayerId { get; set; }
+
 #pragma warning disable S3874 // "out" and "ref" parameters should not be used
         public void Deconstruct(out string token, out bool isTestCurrency, out string partnerId)
 #pragma warning restore S3874 // "out" and "ref" parameters should not be used

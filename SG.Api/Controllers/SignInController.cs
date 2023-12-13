@@ -50,7 +50,7 @@ namespace SG.Api.Controllers
                     BrowserUserAgent = model.BrowserUserAgent,
                     CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
-                    PlayerId = model.PlayerId,
+                    PlayerId = $"{model.SiteId}~{model.PlayerId}",
                     PlayerName = model.PlayerName,
                     Language = model.Language,
                     SiteId = model.SiteId,
@@ -63,7 +63,8 @@ namespace SG.Api.Controllers
                                             systemSetting.DisableJackpotOperators.Any(x => x == model.Auth.OperatorId) || 
                                             model.DisableJackpotGames,
                     Ref = model.Ref,
-                    ReturnUrl = model.ReturnUrl
+                    ReturnUrl = model.ReturnUrl,
+                    OperatorPlayerId = model.PlayerId
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
