@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SG.Api.Authentication;
+using SG.Api.Extensions;
 using SG.Api.Models;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
@@ -50,7 +51,7 @@ namespace SG.Api.Controllers
                     BrowserUserAgent = model.BrowserUserAgent,
                     CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
-                    PlayerId = $"{model.SiteId}~{model.PlayerId}",
+                    PlayerId = StringFormat.FormatPlayerId(model.SiteId, model.PlayerId),
                     PlayerName = model.PlayerName,
                     Language = model.Language,
                     SiteId = model.SiteId,

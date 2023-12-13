@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SG.Api.Authentication;
+using SG.Api.Extensions;
 using SG.Core.Features.EndRoundInfo;
 using SG.Core.Features.Log;
 using SG.Core.Features.Operators;
@@ -55,9 +56,10 @@ namespace SG.Api.Controllers
                     new EndRoundInfoRequest(
                         model.GameRoundId,
                         model.GameTypeId,
-                        model.PlayerId,
+                        StringFormat.FormatPlayerId(model.SiteId,model.PlayerId),
                         model.Auth.OperatorId,
                         @operator.SecretKey,
+                        model.SiteId,
                         freeBet));
 
                 response.Result.Seq = model.Seq;
