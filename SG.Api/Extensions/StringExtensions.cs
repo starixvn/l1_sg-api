@@ -2,9 +2,9 @@
 {
     public static class StringFormat
     {
-        public static string FormatPlayerId(string siteId, string operatorId)
+        public static string FormatPlayerId(string siteId, string playerId)
         {
-            return $"{siteId}~{operatorId}";
+            return string.IsNullOrWhiteSpace(siteId) ? playerId : $"{siteId}~{playerId}";
         }
     }
 }
