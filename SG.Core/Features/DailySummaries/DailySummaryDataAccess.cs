@@ -8,7 +8,7 @@ namespace SG.Core.Features.DailySummaries
 {
     public interface IDailySummaryDataAccess
     {
-        Task<IEnumerable<DailySummary>> Get(DateTimeOffset summarizeDate, string operatorId);
+        Task<IEnumerable<DailySummary>> Get(DateTimeOffset summarizeDate, string operatorId, string siteId);
     }
 
     public class DailySummaryDataAccess : IDailySummaryDataAccess
@@ -23,7 +23,9 @@ namespace SG.Core.Features.DailySummaries
             collection = database.GetCollection<DailySummary>(collectionName);
         }
 
-        public async Task<IEnumerable<DailySummary>> Get(DateTimeOffset summarizeDate, string operatorId)
-            => await collection.Find(x => x.Time == summarizeDate.Date && x.PartnerId == operatorId).ToListAsync();
+        public async Task<IEnumerable<DailySummary>> Get(DateTimeOffset summarizeDate, string operatorId, string siteId)
+            => await collection
+            .Find(x => x.Time == summarizeDate.Date && x.PartnerId == operatorId && (string.IsNullOrWhiteSpace(x.SiteId) || x.SiteId == siteId))
+            .ToListAsync();
     }
 }

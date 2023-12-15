@@ -30,17 +30,17 @@ namespace SG.Core.Tests.Features.DailySummaries
         }
 
         [Theory, AutoData]
-        public async Task Get_ValidInputData_ReturnCorrectData(DateTimeOffset date, string operatorId)
+        public async Task Get_ValidInputData_ReturnCorrectData(DateTimeOffset date, string operatorId, string siteId)
         {
             // Arrange
-            dataAccess.Get(date, operatorId).Returns(fixture.Create<IEnumerable<DailySummary>>());
+            dataAccess.Get(date, operatorId, siteId).Returns(fixture.Create<IEnumerable<DailySummary>>());
             appSettings.DailySummaryConsolidationMapping.Returns(new Dictionary<string, string>());
 
             // Act
-            var result = await dailySummaryService.Get(date, operatorId);
+            var result = await dailySummaryService.Get(date, operatorId, siteId);
 
             // Assert
-            await dataAccess.Received().Get(date, operatorId);
+            await dataAccess.Received().Get(date, operatorId, siteId);
             Assert.NotEmpty(result.Summary);
         }
 
@@ -55,10 +55,11 @@ namespace SG.Core.Tests.Features.DailySummaries
             {
                 { mainOperatorId, subOperatorId }
             };
-            ArrangeOperatorSummaryData(summaryDate, mainOperatorId, subOperatorId, operatorMapping);
+            var siteId = "Site1";
+            ArrangeOperatorSummaryData(summaryDate, mainOperatorId, subOperatorId, operatorMapping, siteId);
 
             //// Act
-            var result = await dailySummaryService.Get(summaryDate, mainOperatorId);
+            var result = await dailySummaryService.Get(summaryDate, mainOperatorId, siteId);
 
             //// Assert
             Assert.Equal(2, result.Summary.Count());
@@ -85,10 +86,11 @@ namespace SG.Core.Tests.Features.DailySummaries
             {
                 { "otherMainOperator", subOperatorId }
             };
-            ArrangeOperatorSummaryData(summaryDate, mainOperatorId, subOperatorId, operatorMapping);
+            var siteId = "Site1";
+            ArrangeOperatorSummaryData(summaryDate, mainOperatorId, subOperatorId, operatorMapping, siteId);
 
             //// Act
-            var result = await dailySummaryService.Get(summaryDate, mainOperatorId);
+            var result = await dailySummaryService.Get(summaryDate, mainOperatorId, siteId);
 
             //// Assert
             Assert.Equal(2, result.Summary.Count());
@@ -104,9 +106,9 @@ namespace SG.Core.Tests.Features.DailySummaries
             Assert.Equal(16, actualINSumary.TicketCount);
         }
 
-        private void ArrangeOperatorSummaryData(DateTime summaryDate, string mainOperatorId, string subOperatorId, Dictionary<string, string> operatorMapping)
+        private void ArrangeOperatorSummaryData(DateTime summaryDate, string mainOperatorId, string subOperatorId, Dictionary<string, string> operatorMapping, string siteId)
         {
-            dataAccess.Get(summaryDate, mainOperatorId).Returns(Task.FromResult(new List<DailySummary> {
+            dataAccess.Get(summaryDate, mainOperatorId, siteId).Returns(Task.FromResult(new List<DailySummary> {
                     new DailySummary
                     {
                         Currency = "US",
@@ -122,7 +124,7 @@ namespace SG.Core.Tests.Features.DailySummaries
                         Tickets = 16
                     }
                 } as IEnumerable<DailySummary>));
-            dataAccess.Get(summaryDate, subOperatorId).Returns(Task.FromResult(new List<DailySummary> {
+            dataAccess.Get(summaryDate, subOperatorId, siteId).Returns(Task.FromResult(new List<DailySummary> {
                     new DailySummary
                     {
                         Currency = "US",

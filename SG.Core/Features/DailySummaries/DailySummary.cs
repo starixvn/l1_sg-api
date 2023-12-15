@@ -26,5 +26,7 @@ namespace SG.Core.Features.DailySummaries
         public decimal Payout { get; set; }
 
         public int Tickets { get; set; }
+
+        public string SiteId { get; set; }
     }
 }

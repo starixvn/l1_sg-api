@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Sentry;
@@ -11,7 +12,7 @@ namespace SG.Core.Features.DailySummaries
 {
     public interface IDailySummaryService
     {
-        Task<DailySummaryResult> Get(DateTimeOffset summarizeDate, string operatorId);
+        Task<DailySummaryResult> Get(DateTimeOffset summarizeDate, string operatorId, string siteId);
     }
 
     public class DailySummaryService : IDailySummaryService
@@ -29,22 +30,22 @@ namespace SG.Core.Features.DailySummaries
             this.sentryClient = sentryClient;
         }
 
-        public async Task<DailySummaryResult> Get(DateTimeOffset summarizeDate, string operatorId)
+        public async Task<DailySummaryResult> Get(DateTimeOffset summarizeDate, string operatorId, string siteId)
         {
-            var mainDailySummary = await GetDailySummary(summarizeDate, operatorId);
+            var mainDailySummary = await GetDailySummary(summarizeDate, operatorId, siteId);
 
             if (appSettings.DailySummaryConsolidationMapping.Any() 
                 && appSettings.DailySummaryConsolidationMapping.Keys.Contains(operatorId))
             {
-                return await ConsolidateSubOperatorsDailySummary(mainDailySummary, operatorId, summarizeDate);
+                return await ConsolidateSubOperatorsDailySummary(mainDailySummary, operatorId, summarizeDate, siteId);
             }
 
             return mainDailySummary;
         }
 
-        private async Task<DailySummaryResult> GetDailySummary(DateTimeOffset summarizeDate, string operatorId)
+        private async Task<DailySummaryResult> GetDailySummary(DateTimeOffset summarizeDate, string operatorId, string siteId)
         {
-            var dailySummaryItems = await dataAccess.Get(summarizeDate, operatorId);
+            var dailySummaryItems = await dataAccess.Get(summarizeDate, operatorId, siteId);
 
             return new DailySummaryResult
             {
@@ -61,7 +62,8 @@ namespace SG.Core.Features.DailySummaries
         private async Task<DailySummaryResult> ConsolidateSubOperatorsDailySummary(
             DailySummaryResult mainOperatorSummary, 
             string mainOperator,
-            DateTimeOffset summarizeDate)
+            DateTimeOffset summarizeDate,
+            string siteId)
         {
             var allOperatorsDailySymmary = new List<SummaryItem>(mainOperatorSummary.Summary);
 
@@ -69,7 +71,7 @@ namespace SG.Core.Features.DailySummaries
             {
                 if (mainOperator == operatorMapping.Key)
                 {
-                    var subDailySummary = await GetDailySummary(summarizeDate, operatorMapping.Value);
+                    var subDailySummary = await GetDailySummary(summarizeDate, operatorMapping.Value, siteId);
 
                     allOperatorsDailySymmary.AddRange(subDailySummary.Summary);
                 }

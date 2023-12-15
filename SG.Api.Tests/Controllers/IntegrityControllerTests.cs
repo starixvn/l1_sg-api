@@ -84,14 +84,14 @@ namespace SG.Api.Tests.Controllers
 
             appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = true };
             operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
-            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(new DailySummaryResult());
+            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId, model.SiteId).Returns(fixture.Create<DailySummaryResult>());
 
             // Act
             var result = await controller.DailySummarize(model);
 
             // Assert
             await operatorRequestAuthentication.Received().Verify(model.Auth.OperatorId, controller.Request);
-            await dailySummaryService.Received().Get(model.SummarizedDate, model.Auth.OperatorId);
+            await dailySummaryService.Received().Get(model.SummarizedDate, model.Auth.OperatorId, model.SiteId);
             Assert.IsType<OkObjectResult>(result);
         }
 
