@@ -8,7 +8,7 @@ namespace SG.Core.Features.MemberAuthentications
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; }  
 
         public string IP { get; set; }
 

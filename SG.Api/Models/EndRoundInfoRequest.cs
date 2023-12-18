@@ -14,6 +14,7 @@ namespace SG.Api.Models
         public byte GameTypeId { get; set; }
 
         [Required]
+        [MaxLength(50)]
         public string PlayerId { get; set; }
 
         public bool FreeBet { get; set; }

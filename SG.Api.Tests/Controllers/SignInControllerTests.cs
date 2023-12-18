@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using SG.Api.Authentication;
 using SG.Api.Controllers;
+using SG.Api.Extensions;
 using SG.Api.Models;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
@@ -111,5 +112,29 @@ namespace SG.Api.Tests.Controllers
             // Assert
             Assert.NotNull(actualValue);
         }
+
+        [Fact]
+        public async Task Index_ValidClient_FormatPlayerIdCorrectly()
+        {
+            // Arrange
+            var model = fixture.Create<SignIn>();
+            model.IP = "IP";
+            model.Auth = new Auth { OperatorId = "VG" };
+            model.AppType = AppTypes.SabaClub;
+
+            operatorDataService.VerifyWithCurrency(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
+            operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
+
+            var result = fixture.Create<SingleSignOnResult>();
+            var formattedPlayerId = string.Empty;
+            memberAuthService.SignIn(Arg.Do<MemberAuth>(x => formattedPlayerId =  x.PlayerId), Arg.Any<byte>()).Returns(result);
+
+            // Act
+            var actualValue = await controller.Index(model) as OkObjectResult;
+
+            // Assert
+            Assert.Equal(StringFormat.FormatPlayerId(model.SiteId, model.PlayerId), formattedPlayerId);
+        }
+
     }
 }

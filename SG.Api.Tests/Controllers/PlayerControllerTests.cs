@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using SG.Api.Authentication;
 using SG.Api.Controllers;
+using SG.Api.Extensions;
 using SG.Core.Features.EndRoundInfo;
 using SG.Core.Features.Log;
 using SG.Core.Features.Operators;
@@ -89,6 +90,25 @@ namespace SG.Api.Tests.Controllers
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async Task RetrieveEndRoundInfo_ValidModelAndAccessKey_FormatPlayerIdCorrectly()
+        {
+            // Arrange
+            var model = fixture.Create<Models.EndRoundInfoRequest>();
+            operatorDataService.GetById(model.Auth.OperatorId).Returns(fixture.Create<Operator>());
+            operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
+
+            var sgResponse = fixture.Create<SGResponse<EndRoundInfoResult>>();
+            var formattedPlayerId = string.Empty;
+            resultApiService.RetrieveEndRoundInfoAsync(Arg.Do<EndRoundInfoRequest>(x => formattedPlayerId = x.PlayerId)).Returns(sgResponse);
+
+            // Act
+            var result = await controller.RetrieveEndRoundInfo(model) as OkObjectResult;
+
+            // Assert
+            Assert.Equal(StringFormat.FormatPlayerId(model.SiteId, model.PlayerId), formattedPlayerId);
         }
     }
 }
