@@ -1,4 +1,5 @@
-﻿using SG.Core.Shared.Constants;
+﻿using System.ComponentModel.DataAnnotations;
+using SG.Core.Shared.Constants;
 using SG.Core.Shared.Models;
 
 namespace SG.Api.Models
@@ -15,6 +16,7 @@ namespace SG.Api.Models
 
         public string IP { get; set; }
 
+        [MaxLength(50)]
         public string PlayerId { get; set; }
 
         public string PlayerName { get; set; }
