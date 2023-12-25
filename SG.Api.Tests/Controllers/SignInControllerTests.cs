@@ -119,7 +119,7 @@ namespace SG.Api.Tests.Controllers
             // Arrange
             var model = fixture.Create<SignIn>();
             model.IP = "IP";
-            model.Auth = new Auth { OperatorId = "SabaPlay" };
+            model.Auth = new Auth { OperatorId = Operators.SabaPlay };
             model.AppType = AppTypes.SabaClub;
 
             operatorDataService.VerifyWithCurrency(Arg.Any<string>(), Arg.Any<string>()).Returns(true);

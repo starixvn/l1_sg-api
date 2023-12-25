@@ -51,7 +51,7 @@ namespace SG.Api.Controllers
                     BrowserUserAgent = model.BrowserUserAgent,
                     CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
-                    PlayerId = model.Auth.OperatorId == "SabaPlay" ? StringFormat.FormatPlayerId(model.SiteId, model.PlayerId) : model.PlayerId,
+                    PlayerId = model.Auth.OperatorId == Operators.SabaPlay ? StringFormat.FormatPlayerId(model.SiteId, model.PlayerId) : model.PlayerId,
                     PlayerName = model.PlayerName,
                     Language = model.Language,
                     SiteId = model.SiteId,
