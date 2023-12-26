@@ -17,6 +17,7 @@ namespace SG.Api.Models
         public string IP { get; set; }
 
         [MaxLength(50)]
+        [RegularExpression("^[^~]+$")]
         public string PlayerId { get; set; }
 
         public string PlayerName { get; set; }
