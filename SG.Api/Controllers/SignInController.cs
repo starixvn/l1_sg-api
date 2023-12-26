@@ -51,7 +51,7 @@ namespace SG.Api.Controllers
                     BrowserUserAgent = model.BrowserUserAgent,
                     CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
-                    PlayerId = model.Auth.OperatorId == Operators.SabaPlay ? StringFormat.FormatPlayerId(model.SiteId, model.PlayerId) : model.PlayerId,
+                    PlayerId = StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId),
                     PlayerName = model.PlayerName,
                     Language = model.Language,
                     SiteId = model.SiteId,
@@ -61,7 +61,7 @@ namespace SG.Api.Controllers
                     OperatorToken = model.OperatorToken,
                     IsCash = IsVG2System(systemSetting.SystemType) && model.IsCash,
                     DisableJackpotGames = !IsVG2System(systemSetting.SystemType) ||
-                                            systemSetting.DisableJackpotOperators.Any(x => x == model.Auth.OperatorId) || 
+                                            systemSetting.DisableJackpotOperators.Any(x => x == model.Auth.OperatorId) ||
                                             model.DisableJackpotGames,
                     Ref = model.Ref,
                     ReturnUrl = model.ReturnUrl,

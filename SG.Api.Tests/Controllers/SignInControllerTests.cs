@@ -133,7 +133,7 @@ namespace SG.Api.Tests.Controllers
             var actualValue = await controller.Index(model) as OkObjectResult;
 
             // Assert
-            Assert.Equal(StringFormat.FormatPlayerId(model.SiteId, model.PlayerId), formattedPlayerId);
+            Assert.Equal(StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId), formattedPlayerId);
         }
 
     }
