@@ -15,6 +15,7 @@ namespace SG.Api.Models
 
         [Required]
         [MaxLength(50)]
+        [RegularExpression("^[^~]+$")]
         public string PlayerId { get; set; }
 
         public bool FreeBet { get; set; }
