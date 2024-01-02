@@ -25,7 +25,7 @@ namespace SG.Core.Features.DailySummaries
 
         public async Task<IEnumerable<DailySummary>> Get(DateTimeOffset summarizeDate, string operatorId, string siteId)
             => await collection
-            .Find(x => x.Time == summarizeDate.Date && x.PartnerId == operatorId && (string.IsNullOrWhiteSpace(siteId) || x.SiteId == siteId))
+            .Find(x => x.Time == summarizeDate.Date && x.OperatorId == operatorId && (string.IsNullOrWhiteSpace(siteId) || x.SiteId == siteId))
             .ToListAsync();
     }
 }

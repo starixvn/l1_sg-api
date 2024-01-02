@@ -15,7 +15,7 @@ namespace SG.Core.Features.DailySummaries
 
         public int GameId { get; set; }
 
-        public string PartnerId { get; set; }
+        public string OperatorId { get; set; }
 
         public string Currency { get; set; }
 
