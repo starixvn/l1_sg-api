@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -75,6 +76,8 @@ namespace SG.Api
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+
+            Sentry.SentrySdk.CaptureMessage($"SG API Started at {DateTime.Now}");
         }
     }
 }

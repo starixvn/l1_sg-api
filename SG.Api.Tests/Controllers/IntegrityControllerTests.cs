@@ -3,10 +3,14 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
+using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Controllers;
 using SG.Api.Models;
+using SG.Core.Features.ApiCommunicators;
 using SG.Core.Features.DailySummaries;
+using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using Xunit;
 
 namespace SG.Api.Tests.Controllers
@@ -16,18 +20,25 @@ namespace SG.Api.Tests.Controllers
         private readonly IntegrityController controller;
         private readonly IDailySummaryService dailySummaryService;
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
+        private readonly ISGApi sgApi;
+        private readonly IAppSettings appSettings;
         private readonly Fixture fixture = new();
+        private readonly IOperatorDataService operatorDataService;
+        private readonly ISentryClient sentryClient;
 
         public IntegrityControllerTests()
         {
             dailySummaryService = Substitute.For<IDailySummaryService>();
             operatorRequestAuthentication = Substitute.For<IOperatorRequestAuthentication>();
+            sgApi = Substitute.For<ISGApi>();
+            appSettings = Substitute.For<AppSettings>();
+            operatorDataService = Substitute.For<IOperatorDataService>();
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Headers["Access-Key"] = "Access-Key";
             var controllerContext = new ControllerContext() { HttpContext = httpContext };
 
-            controller = new IntegrityController(operatorRequestAuthentication, dailySummaryService)
+            controller = new IntegrityController(operatorRequestAuthentication, dailySummaryService, sgApi, appSettings, operatorDataService, sentryClient)
             {
                 ControllerContext = controllerContext
             };
@@ -69,6 +80,7 @@ namespace SG.Api.Tests.Controllers
             // Arrange
             var model = fixture.Create<DailySummaryRequest>();
 
+            appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = true };
             operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
             dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(fixture.Create<DailySummaryResult>());
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using SG.Api.Authentication;
+using SG.Core.Features.ApiCommunicators;
 using SG.Core.Features.DailySummaries;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
@@ -58,6 +59,11 @@ namespace SG.Api.Extensions
             {
                 httpClient.BaseAddress = appSettings.ResultApiSettings.BaseUrl;
             });
+
+            if (appSettings.DailySummaryApiSettings != null)
+            {
+                ApiCommunicatorInit.InitApi(services, appSettings);
+            }
         }
 
         public static void AddSytemSetting(this IServiceCollection services, IConfiguration configuration)

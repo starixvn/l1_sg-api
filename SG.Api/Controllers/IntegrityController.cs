@@ -1,9 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Refit;
+using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Models;
+using SG.Core.Features.ApiCommunicators;
 using SG.Core.Features.DailySummaries;
+using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Models;
+using SG.Core.Shared.Utils;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace SG.Api.Controllers
@@ -15,11 +23,25 @@ namespace SG.Api.Controllers
     {
         private readonly IOperatorRequestAuthentication operatorRequestAuthentication;
         private readonly IDailySummaryService dailySummaryService;
+        private readonly ISGApi sgApi;
+        private readonly IAppSettings appSettings;
+        private readonly IOperatorDataService operatorDataService;
+        private readonly ISentryClient sentryClient;
 
-        public IntegrityController(IOperatorRequestAuthentication operatorRequestAuthentication, IDailySummaryService dailySummaryService)
+        public IntegrityController(
+            IOperatorRequestAuthentication operatorRequestAuthentication, 
+            IDailySummaryService dailySummaryService, 
+            ISGApi sgApi, 
+            IAppSettings appSettings, 
+            IOperatorDataService operatorDataService,
+            ISentryClient sentryClient)
         {
             this.operatorRequestAuthentication = operatorRequestAuthentication;
             this.dailySummaryService = dailySummaryService;
+            this.sgApi = sgApi;
+            this.appSettings = appSettings;
+            this.operatorDataService = operatorDataService;
+            this.sentryClient = sentryClient;
         }
 
         [HttpPost]
@@ -33,17 +55,55 @@ namespace SG.Api.Controllers
 
             if (await operatorRequestAuthentication.Verify(model.Auth.OperatorId, Request))
             {
-                var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
-                result.Seq = model.Seq;
-
-                return Ok(new SGResponse<DailySummaryResult>
+                if(this.appSettings.DailySummaryApiSettings.EnableCloud && !this.appSettings.DailySummaryApiSettings.IsCloud)
                 {
-                    TimeStamp = DateTimeOffset.UtcNow,
-                    Result = result
-                });
+                    return await GetCloudData(model);
+                }
+
+                return await GetInternalData(model);
             }
 
             return Unauthorized();
+        }
+
+        private async Task<IActionResult> GetCloudData(DailySummaryRequest model)
+        {
+            try
+            {
+                var @operator = await operatorDataService.GetById(model.Auth.OperatorId);
+
+                if (@operator != null)
+                {
+                    var accessKey = HMACUtils.GenerateAccessKey(@operator.SecretKey, model);
+                    var result = await sgApi.DailySummarize(accessKey, model);
+
+                    return Ok(result);
+                }
+            }
+            catch(ApiException ex)
+            {
+                this.sentryClient.CaptureException(ex);
+            }
+
+            return await GetInternalData(model);
+        }
+
+
+
+        private async Task<IActionResult> GetInternalData(DailySummaryRequest model)
+        {
+            var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
+            result.Seq = model.Seq;
+
+            var response = new SGResponse<DailySummaryResult>
+            {
+                TimeStamp = DateTimeOffset.UtcNow,
+                Result = result
+            };
+
+            sentryClient.CaptureMessage(JsonConvert.SerializeObject(response));
+
+            return Ok(response);
         }
     }
 }
