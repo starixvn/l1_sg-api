@@ -27,7 +27,9 @@ namespace SG.Core.Features.EndRoundInfo
 
         public Auth Auth { get; }
 
+#pragma warning disable CA1507 // Use nameof to express symbol names
         [JsonProperty("FreeBet", NullValueHandling = NullValueHandling.Ignore)]
+#pragma warning restore CA1507 // Use nameof to express symbol names
         public bool? FreeBet { get; }
     }
 

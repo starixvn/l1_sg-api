@@ -80,7 +80,7 @@ namespace SG.Api.Controllers
                     return Ok(result);
                 }
             }
-            catch(ApiException ex)
+            catch(Exception ex)
             {
                 this.sentryClient.CaptureException(ex);
             }

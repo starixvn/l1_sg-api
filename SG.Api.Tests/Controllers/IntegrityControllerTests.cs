@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Controllers;
@@ -33,7 +35,7 @@ namespace SG.Api.Tests.Controllers
             sgApi = Substitute.For<ISGApi>();
             appSettings = Substitute.For<AppSettings>();
             operatorDataService = Substitute.For<IOperatorDataService>();
-
+            sentryClient = Substitute.For<ISentryClient>();
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Headers["Access-Key"] = "Access-Key";
             var controllerContext = new ControllerContext() { HttpContext = httpContext };
@@ -82,7 +84,7 @@ namespace SG.Api.Tests.Controllers
 
             appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = true };
             operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
-            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(fixture.Create<DailySummaryResult>());
+            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(new DailySummaryResult());
 
             // Act
             var result = await controller.DailySummarize(model);
@@ -91,6 +93,41 @@ namespace SG.Api.Tests.Controllers
             await operatorRequestAuthentication.Received().Verify(model.Auth.OperatorId, controller.Request);
             await dailySummaryService.Received().Get(model.SummarizedDate, model.Auth.OperatorId);
             Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task DailySummarize_IsOnPremise_CallCloudApi()
+        {
+            // Arrange
+            var model = fixture.Create<DailySummaryRequest>();
+            this.operatorDataService.GetById(Arg.Any<string>()).Returns(new Operator { SecretKey = "key" });
+            appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = false, EnableCloud = true, SGApiCloudUrl = "http://demo.com" };
+            operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
+
+            // Act
+            var result = await controller.DailySummarize(model);
+
+            // Assert
+            await sgApi.Received().DailySummarize(Arg.Any<string>(), model);
+        }
+
+        [Fact]
+        public async Task DailySummarize_CallCloudAndThrowException_LogException()
+        {
+            // Arrange
+            var model = fixture.Create<DailySummaryRequest>();
+            this.operatorDataService.GetById(Arg.Any<string>()).Returns(new Operator { SecretKey = "key" });
+            appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = false, EnableCloud = true, SGApiCloudUrl = "http://demo.com" };
+            operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
+            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(fixture.Create<DailySummaryResult>());
+            var apiException = new Exception("Api Error");
+            sgApi.DailySummarize(Arg.Any<string>(), Arg.Any<DailySummaryRequest>()).Throws(apiException);
+            
+            // Act
+            var result = await controller.DailySummarize(model);
+
+            // Assert
+            this.sentryClient.Received().CaptureException(apiException);
         }
     }
 }
