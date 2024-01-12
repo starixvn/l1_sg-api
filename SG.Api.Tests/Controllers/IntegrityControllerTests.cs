@@ -119,7 +119,7 @@ namespace SG.Api.Tests.Controllers
             this.operatorDataService.GetById(Arg.Any<string>()).Returns(new Operator { SecretKey = "key" });
             appSettings.DailySummaryApiSettings = new DailySummaryApiSettings { IsCloud = false, EnableCloud = true, SGApiCloudUrl = "http://demo.com" };
             operatorRequestAuthentication.Verify(model.Auth.OperatorId, controller.Request).Returns(true);
-            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId).Returns(fixture.Create<DailySummaryResult>());
+            dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId, model.SiteId).Returns(fixture.Create<DailySummaryResult>());
             var apiException = new Exception("Api Error");
             sgApi.DailySummarize(Arg.Any<string>(), Arg.Any<DailySummaryRequest>()).Throws(apiException);
             

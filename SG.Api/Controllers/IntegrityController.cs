@@ -89,7 +89,7 @@ namespace SG.Api.Controllers
 
         private async Task<IActionResult> GetInternalData(DailySummaryRequest model)
         {
-            var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId);
+            var result = await dailySummaryService.Get(model.SummarizedDate, model.Auth.OperatorId, model.SiteId);
             result.Seq = model.Seq;
 
             var response = new SGResponse<DailySummaryResult>
