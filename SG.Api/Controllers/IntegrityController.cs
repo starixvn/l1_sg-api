@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Refit;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Models;
@@ -10,9 +10,6 @@ using SG.Core.Features.Operators;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Models;
 using SG.Core.Shared.Utils;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace SG.Api.Controllers
 {
@@ -100,8 +97,6 @@ namespace SG.Api.Controllers
                 TimeStamp = DateTimeOffset.UtcNow,
                 Result = result
             };
-
-            sentryClient.CaptureMessage(JsonConvert.SerializeObject(response));
 
             return Ok(response);
         }
