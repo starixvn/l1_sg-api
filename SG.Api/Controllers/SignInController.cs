@@ -51,7 +51,7 @@ namespace SG.Api.Controllers
                     BrowserUserAgent = model.BrowserUserAgent,
                     CurrencyName = model.Currency.ToUpperInvariant(),
                     IP = ip,
-                    PlayerId = StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId),
+                    PlayerId = StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId.ToString()),
                     PlayerName = model.PlayerName,
                     Language = model.Language,
                     SiteId = model.SiteId,
@@ -65,7 +65,7 @@ namespace SG.Api.Controllers
                                             model.DisableJackpotGames,
                     Ref = model.Ref,
                     ReturnUrl = model.ReturnUrl,
-                    OperatorPlayerId = model.PlayerId
+                    OperatorPlayerId = model.PlayerId.ToString()
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
