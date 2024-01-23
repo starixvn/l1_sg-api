@@ -56,7 +56,7 @@ namespace SG.Api.Controllers
                     new EndRoundInfoRequest(
                         model.GameRoundId,
                         model.GameTypeId,
-                        StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId,model.PlayerId),
+                        StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId,model.PlayerId.ToString()),
                         model.Auth.OperatorId,
                         @operator.SecretKey,
                         model.SiteId,
