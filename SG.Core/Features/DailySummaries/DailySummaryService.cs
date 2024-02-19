@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Sentry;
@@ -34,7 +33,7 @@ namespace SG.Core.Features.DailySummaries
         {
             var mainDailySummary = await GetDailySummary(summarizeDate, operatorId, siteId);
 
-            if (appSettings.DailySummaryConsolidationMapping.Any() 
+            if (appSettings.DailySummaryConsolidationMapping.Any()
                 && appSettings.DailySummaryConsolidationMapping.Keys.Contains(operatorId))
             {
                 return await ConsolidateSubOperatorsDailySummary(mainDailySummary, operatorId, summarizeDate, siteId);
@@ -60,7 +59,7 @@ namespace SG.Core.Features.DailySummaries
         }
 
         private async Task<DailySummaryResult> ConsolidateSubOperatorsDailySummary(
-            DailySummaryResult mainOperatorSummary, 
+            DailySummaryResult mainOperatorSummary,
             string mainOperator,
             DateTimeOffset summarizeDate,
             string siteId)
