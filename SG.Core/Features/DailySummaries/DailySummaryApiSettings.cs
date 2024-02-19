@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SG.Core.Features.DailySummaries
+﻿namespace SG.Core.Features.DailySummaries
 {
     public class DailySummaryApiSettings
     {

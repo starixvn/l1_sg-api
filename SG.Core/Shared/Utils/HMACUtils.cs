@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace SG.Core.Shared.Utils
 {
-    public class HMACUtils
+    public static class HMACUtils
     {
         public static string GenerateAccessKey(string secretKey, object request)
         {
