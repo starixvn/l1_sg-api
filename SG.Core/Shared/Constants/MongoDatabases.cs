@@ -1,6 +1,6 @@
 ﻿namespace SG.Core.Shared.Constants
 {
-    internal static class MongoDatabases
+    public static class MongoDatabases
     {
         public const string Admin = "admin";
         public const string Member = "member";

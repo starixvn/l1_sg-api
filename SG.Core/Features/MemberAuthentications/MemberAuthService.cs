@@ -45,12 +45,12 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var latestSignIn = await memberAuthDataAccess.GetLatest(memberAuth);
-            var isGenerateNew = (latestSignIn == null || latestSignIn.Time.AddSeconds(appSettings.TokenExpiredSeconds) < DateTime.Now);
+            var isGenerateNew = (latestSignIn == null || latestSignIn.Time.AddSeconds(appSettings.TokenExpiredSeconds) < DateTimeOffset.Now);
 
             if (isGenerateNew)
             {
                 memberAuth.Token = Guid.NewGuid().ToString();
-                memberAuth.Time = DateTime.Now;
+                memberAuth.Time = DateTimeOffset.Now;
                 memberAuth.CurrencyCode = currency.Code;
                 memberAuth.CurrencyGroupId = currency.GroupId;
                 memberAuth.Multiplier = currency.Multiplier;

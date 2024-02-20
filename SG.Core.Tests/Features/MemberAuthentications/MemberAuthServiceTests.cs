@@ -41,7 +41,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
 
             // Assert
             Assert.IsType<SingleSignOnResult>(result);
-            Assert.Equal(result.Code, SingleSignOnResult.GameServerNotFoundCode);
+            Assert.Equal(SingleSignOnResult.GameServerNotFoundCode, result.Code);
         }
 
         [Theory]

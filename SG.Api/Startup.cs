@@ -77,7 +77,7 @@ namespace SG.Api
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
 
-            Sentry.SentrySdk.CaptureMessage($"SG API Started at {DateTime.Now}");
+            Sentry.SentrySdk.CaptureMessage($"SG API Started at {DateTimeOffset.Now}");
         }
     }
 }
