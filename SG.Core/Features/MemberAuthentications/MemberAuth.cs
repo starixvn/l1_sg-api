@@ -18,7 +18,6 @@ namespace SG.Core.Features.MemberAuthentications
 
         public string Token { get; set; }
 
-        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTimeOffset Time { get; set; }
 
         public string Language { get; set; }
