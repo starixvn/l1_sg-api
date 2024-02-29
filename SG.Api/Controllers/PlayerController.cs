@@ -42,7 +42,6 @@ namespace SG.Api.Controllers
         [Route("[action]")]
         public async Task<IActionResult> RetrieveEndRoundInfo([FromBody] Models.EndRoundInfoRequest model)
         {
-            SentrySdk.CaptureMessage(string.Format("RetrieveEndRoundInfo {0} {1}", Newtonsoft.Json.JsonConvert.SerializeObject(model), ModelState.IsValid), Sentry.Protocol.SentryLevel.Error);
             if (!ModelState.IsValid)
             {
                 return BadRequest();
