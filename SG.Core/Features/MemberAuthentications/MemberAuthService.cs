@@ -9,7 +9,7 @@ namespace SG.Core.Features.MemberAuthentications
 {
     public interface IMemberAuthService
     {
-        Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, byte? gameTypeId);
+        Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, int? gameTypeId);
     }
 
     public class MemberAuthService : IMemberAuthService
@@ -28,7 +28,7 @@ namespace SG.Core.Features.MemberAuthentications
             this.appSettings = appSettings;
         }
 
-        public async Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, byte? gameTypeId)
+        public async Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, int? gameTypeId)
         {
             var currency = await operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName);
 
@@ -97,7 +97,7 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string operatorAlias, string partnerId = null)
+        private static SingleSignOnResult CreateSSOResult(int? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string operatorAlias, string partnerId = null)
         {
             var clientRedirectUrl = new StringBuilder();
             clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
