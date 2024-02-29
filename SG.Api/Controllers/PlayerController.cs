@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Extensions;
 using SG.Core.Features.EndRoundInfo;
@@ -41,6 +42,7 @@ namespace SG.Api.Controllers
         [Route("[action]")]
         public async Task<IActionResult> RetrieveEndRoundInfo([FromBody] Models.EndRoundInfoRequest model)
         {
+            SentrySdk.CaptureMessage(string.Format("RetrieveEndRoundInfo {0} {1}", Newtonsoft.Json.JsonConvert.SerializeObject(model), ModelState.IsValid), Sentry.Protocol.SentryLevel.Error);
             if (!ModelState.IsValid)
             {
                 return BadRequest();
