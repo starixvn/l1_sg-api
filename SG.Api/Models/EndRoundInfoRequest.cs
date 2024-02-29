@@ -11,7 +11,7 @@ namespace SG.Api.Models
         public int GameRoundId { get; set; }
 
         [Required]
-        public byte GameTypeId { get; set; }
+        public int GameTypeId { get; set; }
 
         [Required]
         [MaxLength(50)]
