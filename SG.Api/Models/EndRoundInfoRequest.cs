@@ -13,10 +13,10 @@ namespace SG.Api.Models
         [Required]
         public byte GameTypeId { get; set; }
 
-        //[Required]
-        //[MaxLength(50)]
-        //[RegularExpression("^[^~]+$")]
-        public int PlayerId { get; set; }
+        [Required]
+        [MaxLength(50)]
+        [RegularExpression("^[^~]+$")]
+        public string PlayerId { get; set; }
 
         public bool FreeBet { get; set; }
     }
