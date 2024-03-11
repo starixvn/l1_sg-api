@@ -69,8 +69,9 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                isTestCurrency ? partnerId : string.Empty,
-                @operator.Alias);
+                @operator.Alias,
+                isTestCurrency ? partnerId : string.Empty
+               );
         }
 
         private async Task<Uri> GetRedirectedUrl(MemberAuth memberAuth, bool isTestCurrency)
@@ -96,7 +97,7 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string partnerId = null, string operatorAlias)
+        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string operatorAlias, string partnerId = null)
         {
             var clientRedirectUrl = new StringBuilder();
             clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
