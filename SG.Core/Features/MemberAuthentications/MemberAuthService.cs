@@ -60,6 +60,7 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var (token, isTestCurrency, partnerId) = isGenerateNew ? memberAuth : latestSignIn;
+            var @operator = await operatorDataService.GetById(memberAuth.OperatorId);
 
             return CreateSSOResult(
                 gameTypeId,
@@ -68,7 +69,8 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                isTestCurrency ? partnerId : string.Empty);
+                isTestCurrency ? partnerId : string.Empty,
+                @operator.Alias);
         }
 
         private async Task<Uri> GetRedirectedUrl(MemberAuth memberAuth, bool isTestCurrency)
@@ -94,7 +96,7 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string partnerId = null)
+        private static SingleSignOnResult CreateSSOResult(byte? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string partnerId = null, string operatorAlias)
         {
             var clientRedirectUrl = new StringBuilder();
             clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
@@ -120,6 +122,11 @@ namespace SG.Core.Features.MemberAuthentications
                 var returnUrlEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(returnUrl));
                 
                 clientRedirectUrl.Append($"&rurl={returnUrlEncoded}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(operatorAlias))
+            {
+                clientRedirectUrl.Append($"&op={operatorAlias}");
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString());

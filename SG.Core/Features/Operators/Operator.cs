@@ -22,5 +22,7 @@ namespace SG.Core.Features.Operators
         public string MegaKenoUrl { get; set; }
 
         public string TestCurrencyUrl { get; set; }
+
+        public string Alias { get; set; }
     }
 }
