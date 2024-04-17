@@ -32,8 +32,7 @@ namespace SG.Api
             services.AddSytemSetting(Configuration);
 
             services.AddControllers();
-            services.AddHealthChecks();
-
+            
             services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -75,7 +74,6 @@ namespace SG.Api
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHealthChecks("/");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
 
