@@ -69,7 +69,7 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                memberAuth.SiteName == "TIP88" ? memberAuth.SiteName : @operator.Alias,
+                memberAuth.SiteName.ToUpper() == "TIP88" ? memberAuth.SiteName : @operator.Alias,
                 isTestCurrency ? partnerId : string.Empty
                );
         }
