@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using NSubstitute;
 using SG.Api.Controllers;
 using Xunit;
 
@@ -10,7 +12,8 @@ namespace SG.Api.Tests.Controllers
 
         public HomeControllerTests()
         {
-            controller = new HomeController();
+            var configuration = Substitute.For<IConfiguration>();
+            controller = new HomeController(configuration);
         }
 
         [Fact]
@@ -19,7 +22,7 @@ namespace SG.Api.Tests.Controllers
             // Arrange
             var expectedResult = new ContentResult
             {
-                Content = "SG Api is running!!!",
+                Content = "SG Api is running!!! -  - ",
                 ContentType = "text/html"
             };
 

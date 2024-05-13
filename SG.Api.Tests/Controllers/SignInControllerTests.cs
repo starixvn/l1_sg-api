@@ -62,7 +62,7 @@ namespace SG.Api.Tests.Controllers
             operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
 
             var result = fixture.Create<SingleSignOnResult>();
-            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<byte>()).Returns(result);
+            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<int>()).Returns(result);
 
             // Act
             var actualValue = await controller.Index(model) as OkObjectResult;
@@ -83,7 +83,7 @@ namespace SG.Api.Tests.Controllers
             operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
 
             var result = fixture.Create<SingleSignOnResult>();
-            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<byte>()).Returns(result);
+            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<int>()).Returns(result);
 
             // Act
             var actualValue = await controller.Index(model) as OkObjectResult;
@@ -104,7 +104,7 @@ namespace SG.Api.Tests.Controllers
             operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
 
             var result = fixture.Create<SingleSignOnResult>();
-            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<byte>()).Returns(result);
+            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<int>()).Returns(result);
 
             // Act
             var actualValue = await controller.Index(model) as OkObjectResult;
@@ -127,7 +127,7 @@ namespace SG.Api.Tests.Controllers
 
             var result = fixture.Create<SingleSignOnResult>();
             var formattedPlayerId = string.Empty;
-            memberAuthService.SignIn(Arg.Do<MemberAuth>(x => formattedPlayerId =  x.PlayerId), Arg.Any<byte>()).Returns(result);
+            memberAuthService.SignIn(Arg.Do<MemberAuth>(x => formattedPlayerId =  x.PlayerId), Arg.Any<int>()).Returns(result);
 
             // Act
             var actualValue = await controller.Index(model) as OkObjectResult;
