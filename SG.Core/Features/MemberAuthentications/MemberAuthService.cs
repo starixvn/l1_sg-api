@@ -69,7 +69,7 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                @operator.Alias,
+                memberAuth.SiteName.ToUpper() == "TIP88" ? memberAuth.SiteName : @operator.Alias,
                 isTestCurrency ? partnerId : string.Empty
                );
         }
@@ -114,14 +114,13 @@ namespace SG.Core.Features.MemberAuthentications
 
             if (!string.IsNullOrWhiteSpace(refValue))
             {
-
                 clientRedirectUrl.Append($"&ref={refValue}");
             }
 
             if (!string.IsNullOrWhiteSpace(returnUrl))
             {
                 var returnUrlEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(returnUrl));
-                
+
                 clientRedirectUrl.Append($"&rurl={returnUrlEncoded}");
             }
 
