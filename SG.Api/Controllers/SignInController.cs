@@ -65,7 +65,8 @@ namespace SG.Api.Controllers
                                             model.DisableJackpotGames,
                     Ref = model.Ref,
                     ReturnUrl = model.ReturnUrl,
-                    OperatorPlayerId = model.PlayerId
+                    OperatorPlayerId = model.PlayerId,
+                    DisableAward = model.DisableAward,
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);

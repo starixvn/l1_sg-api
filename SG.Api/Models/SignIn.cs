@@ -39,5 +39,7 @@ namespace SG.Api.Models
         public string Ref { get; set; }
 
         public string ReturnUrl { get; set; }
+
+        public bool DisableAward { get; set; }
     }
 }
