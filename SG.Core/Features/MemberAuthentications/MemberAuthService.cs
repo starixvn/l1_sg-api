@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SG.Core.Features.Operators;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
@@ -10,6 +14,11 @@ namespace SG.Core.Features.MemberAuthentications
     public interface IMemberAuthService
     {
         Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, int? gameTypeId);
+    }
+
+    public class SiteNames
+    {
+        public List<string> Sites { get; set; }
     }
 
     public class MemberAuthService : IMemberAuthService
@@ -61,6 +70,9 @@ namespace SG.Core.Features.MemberAuthentications
 
             var (token, isTestCurrency, partnerId) = isGenerateNew ? memberAuth : latestSignIn;
             var @operator = await operatorDataService.GetById(memberAuth.OperatorId);
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"sitename-config.json");
+            var siteNames = LoadSiteNamesFromFile(filePath);
+            var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, siteNames, @operator);
 
             return CreateSSOResult(
                 gameTypeId,
@@ -69,9 +81,24 @@ namespace SG.Core.Features.MemberAuthentications
                 gameClientUrl.ToString().TrimEnd('/'),
                 memberAuth.ReturnUrl,
                 memberAuth.Ref,
-                memberAuth.SiteName.ToUpper() == "TIP88" ? memberAuth.SiteName : @operator.Alias,
+                siteNameOrAlias,
                 isTestCurrency ? partnerId : string.Empty
                );
+        }
+
+        private string GetSiteNameOrAlias(string siteName, SiteNames siteNames, Operator @operator)
+        {
+            if (siteName.ToUpperInvariant() == "TIP88")
+            {
+                return siteName;
+            }
+            return siteNames.Sites.Any(site => site.ToUpperInvariant() == siteName.ToUpperInvariant()) ? "VG" : @operator.Alias;
+        }
+
+        private SiteNames LoadSiteNamesFromFile(string filePath)
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<SiteNames>(json);
         }
 
         private async Task<Uri> GetRedirectedUrl(MemberAuth memberAuth, bool isTestCurrency)

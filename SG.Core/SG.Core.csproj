@@ -15,4 +15,10 @@
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="sitename-config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
