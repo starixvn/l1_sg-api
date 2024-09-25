@@ -20,4 +20,12 @@
     <ProjectReference Include="..\SG.Core\SG.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="_Configs\gn\appsettings.LOCAL_1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
