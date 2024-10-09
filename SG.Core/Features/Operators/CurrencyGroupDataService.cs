@@ -11,7 +11,7 @@ namespace SG.Core.Features.Operators
     {
         private readonly ICurrencyGroupDataAccess currencyGroupDataAccess;
 
-        public CurrencyGroupDataService(ICurrencyGroupDataAccess currencyGroupDataAccess, ICurrencyDataAccess currencyDataAccess)
+        public CurrencyGroupDataService(ICurrencyGroupDataAccess currencyGroupDataAccess)
         {
             this.currencyGroupDataAccess = currencyGroupDataAccess;
         }
