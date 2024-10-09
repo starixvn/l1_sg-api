@@ -16,6 +16,8 @@ namespace SG.Core.Tests.Features.MemberAuthentications
     {
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
+        private readonly ICurrencyGroupDataService currencyGroupDataService;
+
         private readonly IAppSettings appSettings;
         private readonly Fixture fixture = new Fixture();
 
@@ -25,9 +27,10 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         {
             memberAuthDataAccess = Substitute.For<IMemberAuthDataAccess>();
             operatorDataService = Substitute.For<IOperatorDataService>();
+            currencyGroupDataService = Substitute.For<ICurrencyGroupDataService>();
             appSettings = Substitute.For<IAppSettings>();
 
-            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, appSettings);
+            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, currencyGroupDataService, appSettings);
         }
 
         [Theory, AutoData]
@@ -80,6 +83,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
                 MiniVersionUrl = "http://mini/"
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency());
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, gameTypeId);
@@ -101,6 +105,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
                 TestCurrencyUrl = "http://test/"
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, null);
@@ -128,6 +133,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency());
             appSettings.TokenExpiredSeconds.Returns(60);
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, null);
@@ -160,6 +166,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
             appSettings.TokenExpiredSeconds.Returns(60);
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, null);
@@ -193,6 +200,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
             appSettings.TokenExpiredSeconds.Returns(60);
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, null);
@@ -220,6 +228,8 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
             appSettings.TokenExpiredSeconds.Returns(60);
+            currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
+
             var rurlEncoded = "aHR0cDovL3Rlc3QuY29tL21lbWJlcg==";
 
             // Act
