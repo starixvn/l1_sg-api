@@ -42,6 +42,9 @@ namespace SG.Api.Extensions
             services.AddScoped<ICurrencyDataAccess, CurrencyDataAccess>();
             services.AddScoped<IOperatorDataService, OperatorDataService>();
 
+            services.AddScoped<ICurrencyGroupDataAccess, CurrencyGroupDataAccess>();
+            services.AddScoped<ICurrencyGroupDataService, CurrencyGroupDataService>();
+
             services.AddScoped<IDailySummaryDataAccess, DailySummaryDataAccess>();
             services.AddScoped<IDailySummaryService, DailySummaryService>();
 

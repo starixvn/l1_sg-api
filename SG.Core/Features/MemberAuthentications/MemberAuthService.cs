@@ -25,15 +25,18 @@ namespace SG.Core.Features.MemberAuthentications
     {
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
+        private readonly ICurrencyGroupDataService currencyGroupDataService;
         private readonly IAppSettings appSettings;
 
         public MemberAuthService(
             IMemberAuthDataAccess memberAuthDataAccess,
             IOperatorDataService operatorDataService,
+            ICurrencyGroupDataService currencyGroupDataService,
             IAppSettings appSettings)
         {
             this.memberAuthDataAccess = memberAuthDataAccess;
             this.operatorDataService = operatorDataService;
+            this.currencyGroupDataService = currencyGroupDataService;
             this.appSettings = appSettings;
         }
 
@@ -73,16 +76,23 @@ namespace SG.Core.Features.MemberAuthentications
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"sitename-config.json");
             var siteNames = LoadSiteNamesFromFile(filePath);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, siteNames, @operator);
+            var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
+
+            var optionalURLParams = new OptionalURLParams
+            {
+                gameTypeId = gameTypeId,
+                returnUrl = memberAuth.ReturnUrl,
+                refValue = memberAuth.Ref,
+                operatorAlias = siteNameOrAlias,
+                partnerId = isTestCurrency ? partnerId : string.Empty,
+                currencyGroup = currencyGroup.Name
+            };
 
             return CreateSSOResult(
-                gameTypeId,
                 token,
                 memberAuth.Language,
                 gameClientUrl.ToString().TrimEnd('/'),
-                memberAuth.ReturnUrl,
-                memberAuth.Ref,
-                siteNameOrAlias,
-                isTestCurrency ? partnerId : string.Empty
+                ref optionalURLParams
                );
         }
 
@@ -124,9 +134,16 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(int? gameTypeId, string token, string language, string gameClientUrl, string returnUrl, string refValue, string operatorAlias, string partnerId = null)
+        private static SingleSignOnResult CreateSSOResult(string token, string language, string gameClientUrl, ref OptionalURLParams optionalURLParams)
         {
+            int? gameTypeId = optionalURLParams.gameTypeId;
+            string partnerId = optionalURLParams.partnerId;
+            string refValue = optionalURLParams.refValue;
+            string returnUrl = optionalURLParams.returnUrl;
+            string operatorAlias = optionalURLParams.operatorAlias;
+            string currencyGroup = optionalURLParams.currencyGroup;
             var clientRedirectUrl = new StringBuilder();
+
             clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
 
             if (gameTypeId.HasValue)
@@ -156,7 +173,22 @@ namespace SG.Core.Features.MemberAuthentications
                 clientRedirectUrl.Append($"&op={operatorAlias}");
             }
 
+            if (!string.IsNullOrWhiteSpace(currencyGroup))
+            {
+                clientRedirectUrl.Append($"&cg={currencyGroup}");
+            }
+
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString());
+        }
+
+        private struct OptionalURLParams
+        {
+            public int? gameTypeId;
+            public string returnUrl;
+            public string refValue;
+            public string operatorAlias;
+            public string partnerId;
+            public string currencyGroup;
         }
     }
 }
