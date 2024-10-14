@@ -31,7 +31,7 @@ namespace SG.Api.Controllers
             this.operatorDataService = operatorDataService;
             this.logService = logService;
             this.operatorRequestAuthentication = operatorRequestAuthentication;
-            this.systemSetting = systemSetting;
+            this.systemSetting = systemSetting;           
         }
 
         [HttpPost]
@@ -71,12 +71,12 @@ namespace SG.Api.Controllers
 
                 await WriteSignInLog(requestTime, model, result);
 
-                return Ok(new Models.SignInResult { RedirectUrl = result.RedirectUrl });
+                return Ok(new Models.SignInResult { RedirectUrl = result.RedirectUrl, Token = result.Token });
             }
 
             await WriteSignInLog(requestTime, model, SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize));
 
-            return Unauthorized();
+            return Unauthorized();           
         }
 
         private static bool IsVG2System(string systemType)

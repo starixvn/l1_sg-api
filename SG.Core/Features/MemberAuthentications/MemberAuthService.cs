@@ -178,7 +178,7 @@ namespace SG.Core.Features.MemberAuthentications
                 clientRedirectUrl.Append($"&cg={currencyGroup}");
             }
 
-            return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString());
+            return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
         }
 
         private struct OptionalURLParams
