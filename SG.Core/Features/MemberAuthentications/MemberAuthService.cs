@@ -129,7 +129,7 @@ namespace SG.Core.Features.MemberAuthentications
                 clientRedirectUrl.Append($"&op={operatorAlias}");
             }
 
-            return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString());
+            return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
         }
     }
 }

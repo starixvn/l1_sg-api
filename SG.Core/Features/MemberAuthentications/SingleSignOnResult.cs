@@ -7,12 +7,13 @@ namespace SG.Core.Features.MemberAuthentications
     {
 
 
-        public SingleSignOnResult(int code, string message, Uri redirectUri = null)
+        public SingleSignOnResult(int code, string message, Uri redirectUri = null, string token = "")
         {
             Code = code;
             Message = message;
             RedirectUri = redirectUri;
             RedirectUrl = RedirectUri == null ? string.Empty : RedirectUri.ToString();
+            Token = token;
         }
 
         public const int SuccessCode = 0;
@@ -33,12 +34,14 @@ namespace SG.Core.Features.MemberAuthentications
 
         public string RedirectUrl { get; set; }
 
+        public string Token { get; set; }
+
         public int Code { get; }
 
         public string Message { get; }
 
-        public static SingleSignOnResult CreateSuccessResponse(string redirectUrl)
-            => new(SuccessCode, string.Empty, new Uri(redirectUrl));
+        public static SingleSignOnResult CreateSuccessResponse(string redirectUrl, string token = "")
+            => new(SuccessCode, string.Empty, new Uri(redirectUrl), token);
 
         public static SingleSignOnResult CreateErrorResponse(int code)
             => new(code, string.Empty);
