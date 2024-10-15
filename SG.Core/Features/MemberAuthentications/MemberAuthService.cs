@@ -91,7 +91,7 @@ namespace SG.Core.Features.MemberAuthentications
                     AppTypes.MiniSabaClub => partner.MiniVersionUrl,
                     AppTypes.SabaMobi => partner.MobiVersionUrl,
                     AppTypes.MegaKeno => partner.MegaKenoUrl,
-                    AppTypes.MobileSabaDirect => partner.MobileDirectUrl,
+                    AppTypes.MobileDirect => partner.MobileDirectUrl,
                     _ => partner.ClubVersionUrl,
                 };
 
