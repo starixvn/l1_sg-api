@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Core.Features.MemberAuthentications
@@ -25,9 +26,9 @@ namespace SG.Core.Features.MemberAuthentications
         private const string collectionName = "member_auths";
         private readonly IMongoCollection<MemberAuth> memberAuthCollection;
 
-        public MemberAuthDataAccess(IMongoClient mongoClient)
+        public MemberAuthDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Member);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetMemberDatabase(databaseSettings.PrefixDbName));
             memberAuthCollection = database.GetCollection<MemberAuth>(collectionName);
         }
 

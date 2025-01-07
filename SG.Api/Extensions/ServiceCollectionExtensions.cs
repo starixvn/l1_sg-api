@@ -23,6 +23,11 @@ namespace SG.Api.Extensions
     {
         public static void AddMongoDB(this IServiceCollection services, IConfiguration configuration)
         {
+            var dbSettings = new DatabaseSettings();
+
+            configuration.GetSection("MongoDBSettings").Bind(dbSettings);
+            services.AddSingleton<IDatabaseSettings>(dbSettings);
+
             var camelIgnoringExtraElementConventions = new ConventionPack
             {
                 new CamelCaseElementNameConvention(),
@@ -30,7 +35,7 @@ namespace SG.Api.Extensions
             };
 
             ConventionRegistry.Register(nameof(camelIgnoringExtraElementConventions), camelIgnoringExtraElementConventions, t => true);
-            services.AddSingleton<IMongoClient>(new MongoClient(configuration["MongoDBSettings:ConnectionString"]));
+            services.AddSingleton<IMongoClient>(new MongoClient(dbSettings.ConnectionString));
 
             BsonSerializer.RegisterSerializer(typeof(DateTimeOffset), new DateTimeOffsetSerializer(BsonType.DateTime));
 

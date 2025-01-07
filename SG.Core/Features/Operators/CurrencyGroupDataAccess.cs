@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Core.Features.Operators
@@ -14,9 +15,9 @@ namespace SG.Core.Features.Operators
         private const string collectionName = "currency_groups";
         private readonly IMongoCollection<CurrencyGroup> currencyGroupCollection;
 
-        public CurrencyGroupDataAccess(IMongoClient mongoClient)
+        public CurrencyGroupDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Minigame);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetMinigameDatabase(databaseSettings.PrefixDbName));
             currencyGroupCollection = database.GetCollection<CurrencyGroup>(collectionName);
         }
 

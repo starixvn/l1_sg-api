@@ -7,6 +7,7 @@ using AutoFixture.Xunit2;
 using MongoDB.Driver;
 using NSubstitute;
 using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using Xunit;
 
 namespace SG.Core.Tests.Operators
@@ -23,10 +24,11 @@ namespace SG.Core.Tests.Operators
 
             var mongoClient = Substitute.For<IMongoClient>();
             var database = Substitute.For<IMongoDatabase>();
+            var databaseSettings = Substitute.For<IDatabaseSettings>();
             mongoClient.GetDatabase(Arg.Any<string>()).Returns(database);
             database.GetCollection<Currency>("currencies").Returns(currencyCollection);
 
-            dataAccess = new CurrencyDataAccess(mongoClient);
+            dataAccess = new CurrencyDataAccess(mongoClient, databaseSettings);
         }
 
         [Theory, AutoData]

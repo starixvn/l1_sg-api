@@ -3,6 +3,7 @@ using AutoFixture.Xunit2;
 using MongoDB.Driver;
 using NSubstitute;
 using SG.Core.Features.Operators;
+using SG.Core.Shared.Configurations;
 using Xunit;
 
 namespace SG.Core.Tests.Operators
@@ -18,10 +19,11 @@ namespace SG.Core.Tests.Operators
 
             var mongoClient = Substitute.For<IMongoClient>();
             var database = Substitute.For<IMongoDatabase>();
+            var databaseSettings = Substitute.For<IDatabaseSettings>();
             mongoClient.GetDatabase(Arg.Any<string>()).Returns(database);
             database.GetCollection<Operator>("partners").Returns(operatorCollection);
 
-            dataAccess = new OperatorDataAccess(mongoClient);
+            dataAccess = new OperatorDataAccess(mongoClient, databaseSettings);
         }
 
         [Theory, AutoData]

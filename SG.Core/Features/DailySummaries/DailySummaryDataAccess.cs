@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Core.Features.DailySummaries
@@ -17,9 +18,9 @@ namespace SG.Core.Features.DailySummaries
 
         private readonly IMongoCollection<DailySummary> collection;
 
-        public DailySummaryDataAccess(IMongoClient mongoClient)
+        public DailySummaryDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Summary);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetSummaryDatabase(databaseSettings.PrefixDbName));
             collection = database.GetCollection<DailySummary>(collectionName);
         }
 

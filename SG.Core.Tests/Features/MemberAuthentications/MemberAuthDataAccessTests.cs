@@ -3,6 +3,7 @@ using AutoFixture.Xunit2;
 using MongoDB.Driver;
 using NSubstitute;
 using SG.Core.Features.MemberAuthentications;
+using SG.Core.Shared.Configurations;
 using Xunit;
 
 namespace SG.Core.Tests.Features.MemberAuthentications
@@ -17,10 +18,11 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             memberAuthCollection = Substitute.For<IMongoCollection<MemberAuth>>();
             var mongoClient = Substitute.For<IMongoClient>();
             var database = Substitute.For<IMongoDatabase>();
+            var databaseSettings = Substitute.For<IDatabaseSettings>();
             mongoClient.GetDatabase("member").Returns(database);
             database.GetCollection<MemberAuth>("member_auths").Returns(memberAuthCollection);
 
-            dataAccess = new MemberAuthDataAccess(mongoClient);
+            dataAccess = new MemberAuthDataAccess(mongoClient, databaseSettings);
         }
 
         [Theory, AutoData]

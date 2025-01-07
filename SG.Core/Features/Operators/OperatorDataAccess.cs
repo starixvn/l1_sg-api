@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Core.Features.Operators
@@ -16,9 +17,9 @@ namespace SG.Core.Features.Operators
         private const string collectionName = "partners";
         private readonly IMongoCollection<Operator> operatorCollection;
 
-        public OperatorDataAccess(IMongoClient mongoClient)
+        public OperatorDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Minigame);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetMinigameDatabase(databaseSettings.PrefixDbName));
             operatorCollection = database.GetCollection<Operator>(collectionName);
         }
 

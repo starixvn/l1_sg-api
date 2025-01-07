@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using SG.Api.Authentication;
+using SG.Core.Shared.Configurations;
 using Xunit;
 
 namespace SG.Api.Tests
@@ -24,7 +25,13 @@ namespace SG.Api.Tests
 
         private static void AddMongoDBSettingsConfigsSection(IConfiguration configuration)
         {
-            configuration["MongoDBSettings:ConnectionString"].Returns("mongodb://127.0.0.1:27017");
+            var connectionString = Substitute.For<IConfigurationSection>();
+            connectionString.Value = "mongodb://127.0.0.1:27017";
+
+            var databaseSettings = Substitute.For<IConfigurationSection>();
+            databaseSettings.GetChildren().Returns(new List<IConfigurationSection> { connectionString });
+            databaseSettings.GetSection("ConnectionString").Returns(connectionString);
+            configuration.GetSection("MongoDBSettings").Returns(databaseSettings);
         }
 
         private static void AddResultApiSettingsConfigsSection(IConfiguration configuration)

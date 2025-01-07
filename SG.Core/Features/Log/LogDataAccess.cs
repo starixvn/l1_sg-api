@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
 namespace SG.Core.Features.Log
@@ -18,9 +19,9 @@ namespace SG.Core.Features.Log
         private readonly IMongoCollection<SBLog> retrieveCollection;
         private readonly IMongoCollection<SBLog> signInCollection;
 
-        public LogDataAccess(IMongoClient mongoClient)
+        public LogDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Log);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetLogDatabase(databaseSettings.PrefixDbName));
 
             retrieveCollection = database.GetCollection<SBLog>(retrieveEndRoundCollectionName);
             signInCollection = database.GetCollection<SBLog>(SignInCollectionName);

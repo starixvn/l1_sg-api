@@ -5,6 +5,7 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
+using Sentry;
 using SG.Api.Authentication;
 using SG.Core.Features.Operators;
 using Xunit;
@@ -17,12 +18,14 @@ namespace SG.Api.Tests.Authentication
         private readonly IOperatorDataService operatorDataService;
         private readonly HttpRequest httpRequest;
         private readonly Fixture fixture = new();
+        private readonly ISentryClient sentryClient;
 
         public OperatorRequestAuthenticationTests()
         {
             operatorDataService = Substitute.For<IOperatorDataService>();
+            sentryClient = Substitute.For<ISentryClient>();
 
-            operatorRequestAuthentication = new OperatorRequestAuthentication(operatorDataService);
+            operatorRequestAuthentication = new OperatorRequestAuthentication(operatorDataService, sentryClient);
 
             httpRequest = Substitute.For<HttpRequest>();
             httpRequest.Body = new MemoryStream(Encoding.ASCII.GetBytes("data"));

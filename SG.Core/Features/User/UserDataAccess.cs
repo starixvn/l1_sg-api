@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 using SG.Core.Shared.Utils;
 
@@ -15,9 +16,9 @@ namespace SG.Core.Features.User
         private const string collectionName = "users";
         private readonly IMongoCollection<User> userCollection;
 
-        public UserDataAccess(IMongoClient mongoClient)
+        public UserDataAccess(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
-            var database = mongoClient.GetDatabase(MongoDatabases.Minigame);
+            var database = mongoClient.GetDatabase(MongoDatabases.GetMinigameDatabase(databaseSettings.PrefixDbName));
             userCollection = database.GetCollection<User>(collectionName);
         }
 
