@@ -15,6 +15,7 @@ using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
 using SG.Core.Shared.Configurations;
+using SG.Core.Features.User;
 
 namespace SG.Api.Extensions
 {
@@ -53,6 +54,9 @@ namespace SG.Api.Extensions
 
             services.AddScoped<IMemberAuthDataAccess, MemberAuthDataAccess>();
             services.AddScoped<IMemberAuthService, MemberAuthService>();
+
+            services.AddScoped<IUserDataAccess, UserDataAccess>();
+            services.AddScoped<IUserDataService, UserDataService>();
         }
 
         public static void AddAppSettings(this IServiceCollection services, IConfiguration configuration)

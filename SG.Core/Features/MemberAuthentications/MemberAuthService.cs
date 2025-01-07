@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SG.Core.Features.Operators;
+using SG.Core.Features.User;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 
@@ -27,16 +28,19 @@ namespace SG.Core.Features.MemberAuthentications
         private readonly IOperatorDataService operatorDataService;
         private readonly ICurrencyGroupDataService currencyGroupDataService;
         private readonly IAppSettings appSettings;
+        private readonly IUserDataService userDataService;
 
         public MemberAuthService(
             IMemberAuthDataAccess memberAuthDataAccess,
             IOperatorDataService operatorDataService,
             ICurrencyGroupDataService currencyGroupDataService,
+            IUserDataService userDataService,
             IAppSettings appSettings)
         {
             this.memberAuthDataAccess = memberAuthDataAccess;
             this.operatorDataService = operatorDataService;
             this.currencyGroupDataService = currencyGroupDataService;
+            this.userDataService = userDataService;
             this.appSettings = appSettings;
         }
 
@@ -120,17 +124,22 @@ namespace SG.Core.Features.MemberAuthentications
                 return null;
             }
 
-            var redirectedUrl = isTestCurrency
-                ? partner.TestCurrencyUrl
-                : memberAuth.AppType switch
-                {
-                    AppTypes.SabaClub => partner.ClubVersionUrl,
-                    AppTypes.MiniSabaClub => partner.MiniVersionUrl,
-                    AppTypes.SabaMobi => partner.MobiVersionUrl,
-                    AppTypes.MegaKeno => partner.MegaKenoUrl,
-                    AppTypes.MobileDirect => partner.MobileDirectUrl,
-                    _ => partner.ClubVersionUrl,
-                };
+            var user = await userDataService.GetByUsername(memberAuth.OperatorId, memberAuth.PlayerId);
+            var isInternal = user?.IsInternal ?? false;
+            if (isTestCurrency && isInternal && !string.IsNullOrWhiteSpace(partner.TestCurrencyUrl))
+            {
+                return new Uri(partner.TestCurrencyUrl);
+            }
+
+            var redirectedUrl = memberAuth.AppType switch
+            {
+                AppTypes.SabaClub => partner.ClubVersionUrl,
+                AppTypes.MiniSabaClub => partner.MiniVersionUrl,
+                AppTypes.SabaMobi => partner.MobiVersionUrl,
+                AppTypes.MegaKeno => partner.MegaKenoUrl,
+                AppTypes.MobileDirect => partner.MobileDirectUrl,
+                _ => partner.ClubVersionUrl
+            };
 
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
