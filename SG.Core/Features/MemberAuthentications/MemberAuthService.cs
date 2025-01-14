@@ -82,6 +82,14 @@ namespace SG.Core.Features.MemberAuthentications
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, siteNames, @operator);
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
 
+            var requiredURLParams = new RequiredURLParams
+            {
+                AppType = memberAuth.AppType,
+                GameClientUrl = gameClientUrl.ToString().TrimEnd('/'),
+                Token = token,
+                Language = memberAuth.Language
+            };
+
             var optionalURLParams = new OptionalURLParams
             {
                 gameTypeId = gameTypeId,
@@ -93,9 +101,7 @@ namespace SG.Core.Features.MemberAuthentications
             };
 
             return CreateSSOResult(
-                token,
-                memberAuth.Language,
-                gameClientUrl.ToString().TrimEnd('/'),
+                ref requiredURLParams,
                 ref optionalURLParams
                );
         }
@@ -144,17 +150,22 @@ namespace SG.Core.Features.MemberAuthentications
             return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
         }
 
-        private static SingleSignOnResult CreateSSOResult(string token, string language, string gameClientUrl, ref OptionalURLParams optionalURLParams)
+        private static SingleSignOnResult CreateSSOResult(ref RequiredURLParams requiredURLParams, ref OptionalURLParams optionalURLParams)
         {
+            string gameClientUrl = requiredURLParams.GameClientUrl;
+            string token = requiredURLParams.Token;
+            string language = requiredURLParams.Language;
+            byte appType = requiredURLParams.AppType;
+
+            var clientRedirectUrl = new StringBuilder();
+            clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}&appType={appType}");
+
             int? gameTypeId = optionalURLParams.gameTypeId;
             string partnerId = optionalURLParams.partnerId;
             string refValue = optionalURLParams.refValue;
             string returnUrl = optionalURLParams.returnUrl;
             string operatorAlias = optionalURLParams.operatorAlias;
             string currencyGroup = optionalURLParams.currencyGroup;
-            var clientRedirectUrl = new StringBuilder();
-
-            clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}");
 
             if (gameTypeId.HasValue)
             {
@@ -189,6 +200,14 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
+        }
+
+        private struct RequiredURLParams
+        {
+            public string Token;
+            public string Language;
+            public string GameClientUrl;
+            public byte AppType;
         }
 
         private struct OptionalURLParams
