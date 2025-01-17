@@ -33,6 +33,9 @@ namespace SG.Api.Extensions
             services.AddSingleton<IMongoClient>(new MongoClient(configuration["MongoDBSettings:ConnectionString"]));
 
             BsonSerializer.RegisterSerializer(typeof(DateTimeOffset), new DateTimeOffsetSerializer(BsonType.DateTime));
+
+            var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("SG"));
+            BsonSerializer.RegisterSerializer(objectSerializer);
         }
 
         public static void AddServices(this IServiceCollection services)
