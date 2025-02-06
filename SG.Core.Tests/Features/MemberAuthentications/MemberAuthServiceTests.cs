@@ -6,6 +6,7 @@ using AutoFixture.Xunit2;
 using NSubstitute;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
+using SG.Core.Features.User;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
 using Xunit;
@@ -17,6 +18,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
         private readonly ICurrencyGroupDataService currencyGroupDataService;
+        private readonly IUserDataService userDataService;
 
         private readonly IAppSettings appSettings;
         private readonly Fixture fixture = new Fixture();
@@ -29,8 +31,9 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             operatorDataService = Substitute.For<IOperatorDataService>();
             currencyGroupDataService = Substitute.For<ICurrencyGroupDataService>();
             appSettings = Substitute.For<IAppSettings>();
+            userDataService = Substitute.For<IUserDataService>();
 
-            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, currencyGroupDataService, appSettings);
+            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, currencyGroupDataService, userDataService, appSettings);
         }
 
         [Theory, AutoData]
