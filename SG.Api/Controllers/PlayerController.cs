@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Sentry;
 using SG.Api.Authentication;
 using SG.Api.Extensions;
 using SG.Core.Features.EndRoundInfo;

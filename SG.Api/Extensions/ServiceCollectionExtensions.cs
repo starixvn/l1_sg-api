@@ -16,6 +16,8 @@ using SG.Core.Features.Operators;
 using SG.Core.Features.ResultApiCommunicators;
 using SG.Core.Shared.Configurations;
 using SG.Core.Features.User;
+using SG.Core.Features.GameConfigurations;
+using SG.Core.Shared;
 
 namespace SG.Api.Extensions
 {
@@ -40,6 +42,11 @@ namespace SG.Api.Extensions
 
         public static void AddServices(this IServiceCollection services)
         {
+            services.AddMemoryCache(options =>
+            {
+                options.ExpirationScanFrequency = TimeSpan.FromMinutes(1);
+            });
+            services.AddSingleton<ICacheManager, CacheManager>();
             services.AddScoped<IOperatorRequestAuthentication, OperatorRequestAuthentication>();
 
             services.AddScoped<IOperatorDataAccess, OperatorDataAccess>();
@@ -79,6 +86,15 @@ namespace SG.Api.Extensions
             if (appSettings.DailySummaryApiSettings != null)
             {
                 ApiCommunicatorInit.InitApi(services, appSettings);
+            }
+
+            if(appSettings.ConfigurationApiSettings != null)
+            {
+                services.AddSingleton(appSettings.ConfigurationApiSettings.Endpoints);
+                services.AddHttpClient<IConfigurationApiService, ConfigurationApiService>(httpClient =>
+                {
+                    httpClient.BaseAddress = appSettings.ConfigurationApiSettings.BaseUrl;
+                });
             }
         }
 

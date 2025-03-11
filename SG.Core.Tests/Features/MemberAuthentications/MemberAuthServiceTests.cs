@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NSubstitute;
+using SG.Core.Features.GameConfigurations;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
 using SG.Core.Features.User;
@@ -19,7 +19,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         private readonly IOperatorDataService operatorDataService;
         private readonly ICurrencyGroupDataService currencyGroupDataService;
         private readonly IUserDataService userDataService;
-
+        private readonly IConfigurationApiService configurationApiService;
         private readonly IAppSettings appSettings;
         private readonly Fixture fixture = new Fixture();
 
@@ -32,8 +32,9 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             currencyGroupDataService = Substitute.For<ICurrencyGroupDataService>();
             appSettings = Substitute.For<IAppSettings>();
             userDataService = Substitute.For<IUserDataService>();
+            configurationApiService = Substitute.For<IConfigurationApiService>();
 
-            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, currencyGroupDataService, userDataService, appSettings);
+            memberAuthService = new MemberAuthService(memberAuthDataAccess, operatorDataService, currencyGroupDataService, userDataService, configurationApiService, appSettings);
         }
 
         [Theory, AutoData]
@@ -87,6 +88,8 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency());
             currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
+            configurationApiService.GetDetailGameConfiguration(1).Returns(new GameConfigurationResponse());
+
 
             // Act
             var result = await memberAuthService.SignIn(memberAuth, gameTypeId);

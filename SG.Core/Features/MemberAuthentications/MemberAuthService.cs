@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SG.Core.Features.GameConfigurations;
 using SG.Core.Features.Operators;
 using SG.Core.Features.User;
 using SG.Core.Shared.Configurations;
@@ -29,18 +30,21 @@ namespace SG.Core.Features.MemberAuthentications
         private readonly ICurrencyGroupDataService currencyGroupDataService;
         private readonly IAppSettings appSettings;
         private readonly IUserDataService userDataService;
+        private readonly IConfigurationApiService configurationApiService;
 
         public MemberAuthService(
             IMemberAuthDataAccess memberAuthDataAccess,
             IOperatorDataService operatorDataService,
             ICurrencyGroupDataService currencyGroupDataService,
             IUserDataService userDataService,
+            IConfigurationApiService configApiService,
             IAppSettings appSettings)
         {
             this.memberAuthDataAccess = memberAuthDataAccess;
             this.operatorDataService = operatorDataService;
             this.currencyGroupDataService = currencyGroupDataService;
             this.userDataService = userDataService;
+            this.configurationApiService = configApiService;
             this.appSettings = appSettings;
         }
 
@@ -53,9 +57,22 @@ namespace SG.Core.Features.MemberAuthentications
                 return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize);
             }
 
-            var gameClientUrl = await GetRedirectedUrl(memberAuth, currency.IsTest);
+            var @operator = await operatorDataService.GetById(memberAuth.OperatorId);
 
-            if (gameClientUrl == null)
+            if(@operator == null)
+            {
+                return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
+            }
+
+            var isTesting = await IsTesting(currency.IsTest, memberAuth.OperatorId, memberAuth.PlayerId);
+            var gameConfiguration = await GetGameConfiguration(gameTypeId);
+            var isOpenDirectly = memberAuth.AppType == AppTypes.SabaClub 
+                && gameConfiguration?.IsOpenDirectly == true 
+                && gameConfiguration?.IsMicrosite == true;
+            var gameClientUrl = GetGameClientUrl(@operator, memberAuth.AppType);
+            var redirectUrl = GetRedirectedUrl(@operator, isTesting, isOpenDirectly, memberAuth.AppType, gameTypeId);
+
+            if (string.IsNullOrEmpty(redirectUrl))
             {
                 return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
             }
@@ -76,16 +93,14 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var (token, isTestCurrency, partnerId) = isGenerateNew ? memberAuth : latestSignIn;
-            var @operator = await operatorDataService.GetById(memberAuth.OperatorId);
-            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"sitename-config.json");
-            var siteNames = LoadSiteNamesFromFile(filePath);
-            var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, siteNames, @operator);
+            var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
+            var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
 
             var requiredURLParams = new RequiredURLParams
             {
                 AppType = memberAuth.AppType,
-                GameClientUrl = gameClientUrl.ToString().TrimEnd('/'),
+                RedirectUrl = redirectUrl,
                 Token = token,
                 Language = memberAuth.Language
             };
@@ -93,72 +108,113 @@ namespace SG.Core.Features.MemberAuthentications
             var optionalURLParams = new OptionalURLParams
             {
                 gameTypeId = gameTypeId,
-                returnUrl = memberAuth.ReturnUrl,
+                returnUrl = returnUrl,
                 refValue = memberAuth.Ref,
                 operatorAlias = siteNameOrAlias,
                 partnerId = isTestCurrency ? partnerId : string.Empty,
-                currencyGroup = currencyGroup.Name
+                currencyGroup = currencyGroup.Name,
+                isStandalone = !isTesting && isOpenDirectly,
+                gatewayId = isOpenDirectly ? gameConfiguration?.Gateway?.Id : null,
             };
 
-            return CreateSSOResult(
-                ref requiredURLParams,
-                ref optionalURLParams
-               );
+            return CreateSSOResult(requiredURLParams, optionalURLParams);
+        }
+        private static string GetRootDomain(string domain)
+        {
+            var uri = new Uri(domain);
+            var parts = uri.Host.Split('.');
+            if (parts.Length <= 2)
+            {
+                return uri.Host;
+            }
+            return string.Join('.', parts.Skip(1));
         }
 
-        private string GetSiteNameOrAlias(string siteName, SiteNames siteNames, Operator @operator)
+        private static string GetReturnUrl(string gameClientUrl, string refValue, string returnUrlValue, bool isOpenDirectly)
         {
+            if(string.IsNullOrEmpty(refValue) && string.IsNullOrEmpty(returnUrlValue) && isOpenDirectly)
+            {
+                return gameClientUrl;
+            }
+            return returnUrlValue;
+        }
+
+        private static string GetSiteNameOrAlias(string siteName, Operator @operator)
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"sitename-config.json");
+            var siteNames = LoadSiteNamesFromFile(filePath);
             if (siteName.ToUpperInvariant() == "TIP88")
             {
                 return siteName;
             }
-            return siteNames.Sites.Any(site => site.ToUpperInvariant() == siteName.ToUpperInvariant()) ? "VG" : @operator.Alias;
+            return siteNames.Sites.Exists(site => site.ToUpperInvariant() == siteName.ToUpperInvariant()) ? "VG" : @operator.Alias;
         }
 
-        private SiteNames LoadSiteNamesFromFile(string filePath)
+        private static SiteNames LoadSiteNamesFromFile(string filePath)
         {
             var json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<SiteNames>(json);
         }
 
-        private async Task<Uri> GetRedirectedUrl(MemberAuth memberAuth, bool isTestCurrency)
+        private async Task<bool> IsTesting(bool isTestCurrency, string operatorId, string playerId)
         {
-            var partner = await operatorDataService.GetById(memberAuth.OperatorId);
-
-            if (partner == null)
+            if (isTestCurrency) 
             {
-                return null;
+                var user = await userDataService.GetByUsername(operatorId, playerId);
+                return user?.IsInternal ?? false;
             }
-
-            var user = await userDataService.GetByUsername(memberAuth.OperatorId, memberAuth.PlayerId);
-            var isInternal = user?.IsInternal ?? false;
-            if (isTestCurrency && isInternal && !string.IsNullOrWhiteSpace(partner.TestCurrencyUrl))
-            {
-                return new Uri(partner.TestCurrencyUrl);
-            }
-
-            var redirectedUrl = memberAuth.AppType switch
-            {
-                AppTypes.SabaClub => partner.ClubVersionUrl,
-                AppTypes.MiniSabaClub => partner.MiniVersionUrl,
-                AppTypes.SabaMobi => partner.MobiVersionUrl,
-                AppTypes.MegaKeno => partner.MegaKenoUrl,
-                AppTypes.MobileDirect => partner.MobileDirectUrl,
-                _ => partner.ClubVersionUrl
-            };
-
-            return string.IsNullOrWhiteSpace(redirectedUrl) ? null : new Uri(redirectedUrl);
+            return false;
         }
 
-        private static SingleSignOnResult CreateSSOResult(ref RequiredURLParams requiredURLParams, ref OptionalURLParams optionalURLParams)
+        private static string GetGameClientUrl(Operator @operator, byte appType)
         {
-            string gameClientUrl = requiredURLParams.GameClientUrl;
+            var clientUrl = appType switch
+            {
+                AppTypes.SabaClub => @operator.ClubVersionUrl,
+                AppTypes.MiniSabaClub => @operator.MiniVersionUrl,
+                AppTypes.SabaMobi => @operator.MobiVersionUrl,
+                AppTypes.MegaKeno => @operator.MegaKenoUrl,
+                AppTypes.MobileDirect => @operator.MobileDirectUrl,
+                _ => @operator.ClubVersionUrl
+            };
+            return clientUrl?.Trim()?.TrimEnd('/');
+        }
+
+        private async Task<GameConfigurationResponse> GetGameConfiguration(int? gameId)
+        {
+            if(gameId > 0)
+            {
+                return await configurationApiService.GetDetailGameConfiguration(gameId.Value);
+            }
+            return null;
+        }
+
+        private string GetRedirectedUrl(Operator @operator, bool isTesting, bool isOpenDirectly, byte appType, int? gameId)
+        {
+            if (isTesting) {
+                return @operator.TestCurrencyUrl.Trim().TrimEnd('/');
+            }
+
+            var gameClientUrl = GetGameClientUrl(@operator, appType);
+            if (isOpenDirectly && !string.IsNullOrEmpty(gameClientUrl))
+            {
+                var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl));
+                var uri = new Uri(url);
+                return new Uri(uri, $"{uri.LocalPath.TrimEnd('/')}/site-{gameId}/").ToString();
+            }
+
+            return gameClientUrl;
+        }
+
+        private static SingleSignOnResult CreateSSOResult(RequiredURLParams requiredURLParams, OptionalURLParams optionalURLParams)
+        {
+            string redirectUrl = requiredURLParams.RedirectUrl;
             string token = requiredURLParams.Token;
             string language = requiredURLParams.Language;
             byte appType = requiredURLParams.AppType;
 
             var clientRedirectUrl = new StringBuilder();
-            clientRedirectUrl.Append($"{gameClientUrl}?token={token}&lang={language}&appType={appType}");
+            clientRedirectUrl.Append($"{redirectUrl}?token={token}&lang={language}&appType={appType}");
 
             int? gameTypeId = optionalURLParams.gameTypeId;
             string partnerId = optionalURLParams.partnerId;
@@ -166,6 +222,7 @@ namespace SG.Core.Features.MemberAuthentications
             string returnUrl = optionalURLParams.returnUrl;
             string operatorAlias = optionalURLParams.operatorAlias;
             string currencyGroup = optionalURLParams.currencyGroup;
+            int? gatewayId = optionalURLParams.gatewayId;
 
             if (gameTypeId.HasValue)
             {
@@ -199,25 +256,36 @@ namespace SG.Core.Features.MemberAuthentications
                 clientRedirectUrl.Append($"&cg={currencyGroup}");
             }
 
+            if (optionalURLParams.isStandalone)
+            {
+                clientRedirectUrl.Append($"&isStandalone=true");
+            }
+
+            if (gatewayId > 0)
+            {
+                clientRedirectUrl.Append($"&gatewayId={gatewayId}");
+            }
+
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
         }
+    }
+    class RequiredURLParams
+    {
+        public string Token { get; set; }
+        public string Language { get; set; }
+        public string RedirectUrl { get; set; }
+        public byte AppType { get; set; }
+    }
 
-        private struct RequiredURLParams
-        {
-            public string Token;
-            public string Language;
-            public string GameClientUrl;
-            public byte AppType;
-        }
-
-        private struct OptionalURLParams
-        {
-            public int? gameTypeId;
-            public string returnUrl;
-            public string refValue;
-            public string operatorAlias;
-            public string partnerId;
-            public string currencyGroup;
-        }
+    class OptionalURLParams
+    {
+        public int? gameTypeId { get; set; }
+        public string returnUrl { get; set; }
+        public string refValue { get; set; }
+        public string operatorAlias { get; set; }
+        public string partnerId { get; set; }
+        public string currencyGroup { get; set; }
+        public bool isStandalone { get; set; }
+        public int? gatewayId { get; set; }
     }
 }
