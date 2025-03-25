@@ -93,9 +93,9 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var (token, isTestCurrency, partnerId) = isGenerateNew ? memberAuth : latestSignIn;
-            var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
+            var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
 
             var requiredURLParams = new RequiredURLParams
             {
@@ -114,11 +114,12 @@ namespace SG.Core.Features.MemberAuthentications
                 partnerId = isTestCurrency ? partnerId : string.Empty,
                 currencyGroup = currencyGroup.Name,
                 isStandalone = !isTesting && isOpenDirectly,
-                gatewayId = isOpenDirectly ? gameConfiguration?.Gateway?.Id : null,
+                lobbyUrl = !isTesting && isOpenDirectly ? gameClientUrl : null,
             };
 
             return CreateSSOResult(requiredURLParams, optionalURLParams);
         }
+
         private static string GetRootDomain(string domain)
         {
             var uri = new Uri(domain);
@@ -132,7 +133,7 @@ namespace SG.Core.Features.MemberAuthentications
 
         private static string GetReturnUrl(string gameClientUrl, string refValue, string returnUrlValue, bool isOpenDirectly)
         {
-            if(string.IsNullOrEmpty(refValue) && string.IsNullOrEmpty(returnUrlValue) && isOpenDirectly)
+            if (string.IsNullOrEmpty(refValue) && string.IsNullOrEmpty(returnUrlValue) && isOpenDirectly)
             {
                 return gameClientUrl;
             }
@@ -222,7 +223,7 @@ namespace SG.Core.Features.MemberAuthentications
             string returnUrl = optionalURLParams.returnUrl;
             string operatorAlias = optionalURLParams.operatorAlias;
             string currencyGroup = optionalURLParams.currencyGroup;
-            int? gatewayId = optionalURLParams.gatewayId;
+            var lobbyUrl = optionalURLParams.lobbyUrl;
 
             if (gameTypeId.HasValue)
             {
@@ -261,9 +262,11 @@ namespace SG.Core.Features.MemberAuthentications
                 clientRedirectUrl.Append($"&isStandalone=true");
             }
 
-            if (gatewayId > 0)
+            if (!string.IsNullOrEmpty(lobbyUrl))
             {
-                clientRedirectUrl.Append($"&gatewayId={gatewayId}");
+                var lobbyUrlEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(lobbyUrl));
+                clientRedirectUrl.Append($"&lurl={lobbyUrlEncoded}");
+
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
@@ -286,6 +289,6 @@ namespace SG.Core.Features.MemberAuthentications
         public string partnerId { get; set; }
         public string currencyGroup { get; set; }
         public bool isStandalone { get; set; }
-        public int? gatewayId { get; set; }
+        public string lobbyUrl { get; set; }
     }
 }
