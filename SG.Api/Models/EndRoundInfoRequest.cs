@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using SG.Api.Extensions;
 using SG.Core.Shared.Models;
 
 namespace SG.Api.Models
@@ -14,9 +16,8 @@ namespace SG.Api.Models
         public int GameTypeId { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        [RegularExpression("^[^~]+$")]
-        public string PlayerId { get; set; }
+        [JsonConverter(typeof(PlayerIdConverter))]
+        public object PlayerId { get; set; }
 
         public bool FreeBet { get; set; }
     }
