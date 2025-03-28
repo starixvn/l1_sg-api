@@ -136,5 +136,66 @@ namespace SG.Api.Tests.Controllers
             Assert.Equal(StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId.ToString()), formattedPlayerId);
         }
 
+        [Fact]
+        public async Task Index_PlayerId_AsString_ReturnOkResult()
+        {
+            // Arrange
+            var model = fixture.Create<SignIn>();
+            model.PlayerId = "TestPlayer123";
+            model.Auth = new Auth { OperatorId = "ONEworksSeal888" };
+            operatorDataService.VerifyWithCurrency(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
+            operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
+
+            var result = fixture.Create<SingleSignOnResult>();
+            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<int>()).Returns(result);
+
+            // Act
+            var actualValue = await controller.Index(model) as OkObjectResult;
+
+            // Assert
+            Assert.NotNull(actualValue);
+            await logService.Received(1).LogSignInAsync(Arg.Is<SBLog>(log => VerifyLog(log, result, "TestPlayer123")));
+        }
+
+        [Fact]
+        public async Task Index_PlayerId_AsInt_ReturnOkResult()
+        {
+            // Arrange
+            var model = fixture.Create<SignIn>();
+            model.PlayerId = 12345;  // Int type for PlayerId
+            model.Auth = new Auth { OperatorId = "ONEworks1" };
+
+            operatorDataService.VerifyWithCurrency(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
+            operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
+
+            var result = fixture.Create<SingleSignOnResult>();
+            memberAuthService.SignIn(Arg.Any<MemberAuth>(), Arg.Any<int>()).Returns(result);
+
+            // Act
+            var actualValue = await controller.Index(model) as OkObjectResult;
+
+            // Assert
+            Assert.NotNull(actualValue);
+            await logService.Received(1).LogSignInAsync(Arg.Is<SBLog>(log => VerifyLog(log, result, 12345)));
+        }
+   
+        private static bool VerifyLog(SBLog log, SingleSignOnResult result, object playerId)
+        {
+            if (log.Request is SignIn signInRequest)
+            {
+                var requestPlayerId = signInRequest.PlayerId;
+                if (playerId is int)
+                {
+                    return (int)requestPlayerId == (int)playerId && log.Result == result;
+                }
+
+                if (playerId is string)
+                {
+                    return (string)requestPlayerId == (string)playerId && log.Result == result;
+                }
+            }
+
+            return false;
+        }
     }
 }
