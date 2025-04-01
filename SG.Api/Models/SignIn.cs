@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using SG.Api.Extensions;
 using SG.Core.Shared.Constants;
 using SG.Core.Shared.Models;

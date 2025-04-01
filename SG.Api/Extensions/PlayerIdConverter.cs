@@ -6,13 +6,14 @@ namespace SG.Api.Extensions
 {
     public class PlayerIdConverter : JsonConverter<object>
     {
+        private const int MaxPlayerIdLength = 50;
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)
             {
                 var stringValue = reader.GetString();
 
-                if (stringValue.Length > 50)
+                if (stringValue.Length > MaxPlayerIdLength)
                 {
                     throw new JsonException("PlayerId cannot exceed 50 characters.");
                 }
@@ -27,8 +28,10 @@ namespace SG.Api.Extensions
             {
                 return intValue;
             }
-
-            throw new JsonException("PlayerId must be a string or int.");
+            else
+            {
+                throw new JsonException("PlayerId must be a string or int.");
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
