@@ -7,6 +7,8 @@
         public string Key { get; set; }
         public bool? IsMicrosite { get; set; }
         public bool? IsOpenDirectly { get; set; }
+
+        public bool? IsSupportedPortraitMode { get; set; }
         public GameConfigurationGateway Gateway { get; set; }
     }
 

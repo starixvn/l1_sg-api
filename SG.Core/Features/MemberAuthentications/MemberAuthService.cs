@@ -10,6 +10,7 @@ using SG.Core.Features.Operators;
 using SG.Core.Features.User;
 using SG.Core.Shared.Configurations;
 using SG.Core.Shared.Constants;
+using SG.Core.Shared.Utils;
 
 namespace SG.Core.Features.MemberAuthentications
 {
@@ -25,6 +26,7 @@ namespace SG.Core.Features.MemberAuthentications
 
     public class MemberAuthService : IMemberAuthService
     {
+        private const string SABA_PLAY_OPERATOR_ID = "SabaPlay";
         private readonly IMemberAuthDataAccess memberAuthDataAccess;
         private readonly IOperatorDataService operatorDataService;
         private readonly ICurrencyGroupDataService currencyGroupDataService;
@@ -59,18 +61,23 @@ namespace SG.Core.Features.MemberAuthentications
 
             var @operator = await operatorDataService.GetById(memberAuth.OperatorId);
 
-            if(@operator == null)
+            if (@operator == null)
             {
                 return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
             }
 
+            var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
+            var isMobile = deviceType.Equals(DeviceType.Mobile);
+
             var isTesting = await IsTesting(currency.IsTest, memberAuth.OperatorId, memberAuth.PlayerId);
             var gameConfiguration = await GetGameConfiguration(gameTypeId);
-            var isOpenDirectly = memberAuth.AppType == AppTypes.SabaClub 
-                && gameConfiguration?.IsOpenDirectly == true 
+            var isOpenDirectly = memberAuth.AppType == AppTypes.SabaClub
+                && gameConfiguration?.IsOpenDirectly == true
                 && gameConfiguration?.IsMicrosite == true;
-            var gameClientUrl = GetGameClientUrl(@operator, memberAuth.AppType);
-            var redirectUrl = GetRedirectedUrl(@operator, isTesting, isOpenDirectly, memberAuth.AppType, gameTypeId);
+
+            var shouldUsePortraitOrientation = gameConfiguration?.IsSupportedPortraitMode == true && isMobile;
+            var gameClientUrl = GetGameClientUrl(@operator, memberAuth.AppType, shouldUsePortraitOrientation);
+            var redirectUrl = GetRedirectedUrl(@operator, isTesting, isOpenDirectly, memberAuth.AppType, shouldUsePortraitOrientation, gameTypeId);
 
             if (string.IsNullOrEmpty(redirectUrl))
             {
@@ -97,6 +104,7 @@ namespace SG.Core.Features.MemberAuthentications
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
 
+
             var requiredURLParams = new RequiredURLParams
             {
                 AppType = memberAuth.AppType,
@@ -114,7 +122,7 @@ namespace SG.Core.Features.MemberAuthentications
                 partnerId = isTestCurrency ? partnerId : string.Empty,
                 currencyGroup = currencyGroup.Name,
                 isStandalone = !isTesting && isOpenDirectly,
-                lobbyUrl = !isTesting && isOpenDirectly ? gameClientUrl : null,
+                lobbyUrl = !isTesting && isOpenDirectly ? gameClientUrl : null
             };
 
             return CreateSSOResult(requiredURLParams, optionalURLParams);
@@ -159,7 +167,7 @@ namespace SG.Core.Features.MemberAuthentications
 
         private async Task<bool> IsTesting(bool isTestCurrency, string operatorId, string playerId)
         {
-            if (isTestCurrency) 
+            if (isTestCurrency)
             {
                 var user = await userDataService.GetByUsername(operatorId, playerId);
                 return user?.IsInternal ?? false;
@@ -167,11 +175,11 @@ namespace SG.Core.Features.MemberAuthentications
             return false;
         }
 
-        private static string GetGameClientUrl(Operator @operator, byte appType)
+        private static string GetGameClientUrl(Operator @operator, byte appType, bool shouldUsePortraitOrientation)
         {
             var clientUrl = appType switch
             {
-                AppTypes.SabaClub => @operator.ClubVersionUrl,
+                AppTypes.SabaClub => GetSabaClubAppTypeClientUrl(@operator, shouldUsePortraitOrientation),
                 AppTypes.MiniSabaClub => @operator.MiniVersionUrl,
                 AppTypes.SabaMobi => @operator.MobiVersionUrl,
                 AppTypes.MegaKeno => @operator.MegaKenoUrl,
@@ -181,22 +189,30 @@ namespace SG.Core.Features.MemberAuthentications
             return clientUrl?.Trim()?.TrimEnd('/');
         }
 
+        private static string GetSabaClubAppTypeClientUrl(Operator @operator, bool shouldUsePortraitOrientation)
+        {
+            return @operator.PartnerId == SABA_PLAY_OPERATOR_ID && shouldUsePortraitOrientation
+                ? @operator.MobileDirectUrl
+                : @operator.ClubVersionUrl;
+        }
+
         private async Task<GameConfigurationResponse> GetGameConfiguration(int? gameId)
         {
-            if(gameId > 0)
+            if (gameId > 0)
             {
                 return await configurationApiService.GetDetailGameConfiguration(gameId.Value);
             }
             return null;
         }
 
-        private string GetRedirectedUrl(Operator @operator, bool isTesting, bool isOpenDirectly, byte appType, int? gameId)
+        private string GetRedirectedUrl(Operator @operator, bool isTesting, bool isOpenDirectly, byte appType, bool shouldUsePortraitOrientation, int? gameId)
         {
-            if (isTesting) {
+            if (isTesting)
+            {
                 return @operator.TestCurrencyUrl.Trim().TrimEnd('/');
             }
 
-            var gameClientUrl = GetGameClientUrl(@operator, appType);
+            var gameClientUrl = GetGameClientUrl(@operator, appType, shouldUsePortraitOrientation);
             if (isOpenDirectly && !string.IsNullOrEmpty(gameClientUrl))
             {
                 var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl));
@@ -278,6 +294,7 @@ namespace SG.Core.Features.MemberAuthentications
         public string Language { get; set; }
         public string RedirectUrl { get; set; }
         public byte AppType { get; set; }
+
     }
 
     class OptionalURLParams
