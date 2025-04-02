@@ -246,5 +246,33 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             Assert.Contains($"ref={memberAuth.Ref}", result.RedirectUrl);
             Assert.Contains($"rurl={rurlEncoded}", result.RedirectUrl);
         }
+
+        [Theory]
+        [InlineData("SabaPlay", true, "http://mobile", "http://club", "http://mobile")]
+        [InlineData("SabaPlay", false, "http://mobile", "http://club", "http://club")]
+        [InlineData("OtherPartner", true, "http://mobile", "http://club", "http://club")]
+        [InlineData("OtherPartner", false, "http://mobile", "http://club", "http://club")]
+        public void GetSabaClubAppTypeClientUrl_ShouldReturnCorrectUrl(
+            string partnerId,
+            bool shouldUsePortraitOrientation,
+            string mobileDirectUrl,
+            string clubVersionUrl,
+            string expectedUrl)
+        {
+            // Arrange
+            var @operator = new Operator
+            {
+                PartnerId = partnerId,
+                MobileDirectUrl = mobileDirectUrl,
+                ClubVersionUrl = clubVersionUrl
+            };
+
+            // Act
+            var actualUrl = MemberAuthService.GetSabaClubAppTypeClientUrl(@operator, shouldUsePortraitOrientation);
+
+            // Assert
+            Assert.Equal(expectedUrl, actualUrl);
+        }
+
     }
 }

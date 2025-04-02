@@ -189,7 +189,7 @@ namespace SG.Core.Features.MemberAuthentications
             return clientUrl?.Trim()?.TrimEnd('/');
         }
 
-        private static string GetSabaClubAppTypeClientUrl(Operator @operator, bool shouldUsePortraitOrientation)
+        public static string GetSabaClubAppTypeClientUrl(Operator @operator, bool shouldUsePortraitOrientation)
         {
             return @operator.PartnerId == SABA_PLAY_OPERATOR_ID && shouldUsePortraitOrientation
                 ? @operator.MobileDirectUrl
