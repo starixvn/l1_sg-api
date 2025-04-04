@@ -23,9 +23,9 @@ namespace SG.Core.Shared
             expirationInMinute = configuration.GetValue("CacheExpirationInMinute", defaultExpirationMinute);
         }
 
-        public void SetCache<T>(string key, T value, byte? absoluteExpirationMinute = null)
+        public void SetCache<T>(string key, T value, byte? expirationMinute = null)
         {
-            cache.Set(key, value, TimeSpan.FromMinutes(absoluteExpirationMinute ?? expirationInMinute));
+            cache.Set(key, value, TimeSpan.FromMinutes(expirationMinute ?? expirationInMinute));
         }
 
         public T GetCache<T>(string key)
