@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.30.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.41.4" />
   </ItemGroup>
 
   <ItemGroup>
