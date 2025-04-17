@@ -63,9 +63,9 @@ namespace SG.Core.Tests.Features.MemberAuthentications
 
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/"
             });
 
             // Act
@@ -82,9 +82,9 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             byte? gameTypeId = 1;
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/"
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency());
             currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
@@ -105,10 +105,10 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             // Arrange
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/",
-                TestCurrencyUrl = "http://test/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/",
+                TestCurrencyUrl = "http://test.com/"
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
             currencyGroupDataService.GetById(Arg.Any<string>()).Returns(new CurrencyGroup() { Name = "Test" });
@@ -128,9 +128,9 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var token = "token";
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/"
             });
             memberAuthDataAccess.GetLatest(memberAuth).Returns(new MemberAuth
             {
@@ -157,10 +157,10 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var partnerId = "partnerId";
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/",
-                TestCurrencyUrl = "http://test/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/",
+                TestCurrencyUrl = "http://test.com/"
             });
 
             memberAuthDataAccess.GetLatest(memberAuth).Returns(new MemberAuth
@@ -191,10 +191,10 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var partnerId = "partnerId";
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/",
-                TestCurrencyUrl = "http://test/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/",
+                TestCurrencyUrl = "http://test.com/"
             });
 
             memberAuthDataAccess.GetLatest(memberAuth).Returns(new MemberAuth
@@ -227,10 +227,10 @@ namespace SG.Core.Tests.Features.MemberAuthentications
 
             operatorDataService.GetById(memberAuth.OperatorId).Returns(new Operator
             {
-                ClubVersionUrl = "http://local/",
-                MobiVersionUrl = "http://mobi/",
-                MiniVersionUrl = "http://mini/",
-                TestCurrencyUrl = "http://test/"
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/",
+                TestCurrencyUrl = "http://test.com/"
             });
             operatorDataService.GetCurrency(memberAuth.OperatorId, memberAuth.CurrencyName).Returns(new Currency { IsTest = true });
             appSettings.TokenExpiredSeconds.Returns(60);
@@ -246,33 +246,5 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             Assert.Contains($"ref={memberAuth.Ref}", result.RedirectUrl);
             Assert.Contains($"rurl={rurlEncoded}", result.RedirectUrl);
         }
-
-        [Theory]
-        [InlineData("SabaPlay", true, "http://mobile", "http://club", "http://mobile")]
-        [InlineData("SabaPlay", false, "http://mobile", "http://club", "http://club")]
-        [InlineData("OtherPartner", true, "http://mobile", "http://club", "http://club")]
-        [InlineData("OtherPartner", false, "http://mobile", "http://club", "http://club")]
-        public void GetSabaClubAppTypeClientUrl_ShouldReturnCorrectUrl(
-            string partnerId,
-            bool shouldUsePortraitOrientation,
-            string mobileDirectUrl,
-            string clubVersionUrl,
-            string expectedUrl)
-        {
-            // Arrange
-            var @operator = new Operator
-            {
-                PartnerId = partnerId,
-                MobileDirectUrl = mobileDirectUrl,
-                ClubVersionUrl = clubVersionUrl
-            };
-
-            // Act
-            var actualUrl = MemberAuthService.GetSabaClubAppTypeClientUrl(@operator, shouldUsePortraitOrientation);
-
-            // Assert
-            Assert.Equal(expectedUrl, actualUrl);
-        }
-
     }
 }

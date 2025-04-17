@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Sentry;
-using Sentry.Protocol;
 using SG.Core.Shared;
 
 namespace SG.Core.Features.GameConfigurations

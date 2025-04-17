@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 
 namespace SG.Core.Shared.Constants
 {
@@ -16,7 +16,7 @@ namespace SG.Core.Shared.Constants
 
         public static bool IsValid(byte appType)
         {
-            return appTypes.Any(x => x == appType);
+            return Array.Exists(appTypes, x => x == appType);
         }
     }
 }
