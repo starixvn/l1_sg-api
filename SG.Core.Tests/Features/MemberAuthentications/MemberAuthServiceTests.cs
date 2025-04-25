@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using SG.Core.Features.GameConfigurations;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
@@ -31,6 +32,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             operatorDataService = Substitute.For<IOperatorDataService>();
             currencyGroupDataService = Substitute.For<ICurrencyGroupDataService>();
             appSettings = Substitute.For<IAppSettings>();
+            appSettings.MicrositeClientPatternDomain = "http://proxy.{host}";
             userDataService = Substitute.For<IUserDataService>();
             configurationApiService = Substitute.For<IConfigurationApiService>();
 
@@ -245,6 +247,101 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             Assert.IsType<SingleSignOnResult>(result);
             Assert.Contains($"ref={memberAuth.Ref}", result.RedirectUrl);
             Assert.Contains($"rurl={rurlEncoded}", result.RedirectUrl);
+        }
+
+        [Theory, AutoData]
+        public async Task UpdateMemberAuth_NotExistingToken_ReturnUnauthorize(UpdatememberAuth request)
+        {
+            // Arrange
+            memberAuthDataAccess.GetByToken(request.Token).ReturnsNull();
+
+            // Act
+            var actual = await memberAuthService.UpdateMemberAuth(request);
+
+            // Assert
+            Assert.Equal(SingleSignOnResult.Unauthorize, actual.Code);
+        }
+
+        [Theory, AutoData]
+        public async Task UpdateMemberAuth_NotExistingOperator_ReturnGameServerNotFound(UpdatememberAuth request)
+        {
+            // Arrange
+            var memberAuth = fixture.Create<MemberAuth>();
+            memberAuthDataAccess.GetByToken(Arg.Any<string>()).Returns(memberAuth);
+            operatorDataService.GetById(request.OperatorId).ReturnsNull();
+
+            // Act
+            var actual = await memberAuthService.UpdateMemberAuth(request);
+
+            // Assert
+            Assert.Equal(SingleSignOnResult.GameServerNotFoundCode, actual.Code);
+        }
+
+        [Theory, AutoData]
+        public async Task UpdateMemberAuth_NotRedirectUrl_ReturnGameServerNotFound(UpdatememberAuth request)
+        {
+            // Arrange
+            request.GameId = 2;
+            var memberAuth = fixture.Create<MemberAuth>();
+            memberAuth.AppType = 2;
+            memberAuthDataAccess.GetByToken(Arg.Any<string>()).Returns(memberAuth);
+            var @operator = fixture.Create<Operator>();
+            @operator.MobiVersionUrl = "";
+            operatorDataService.GetById(request.OperatorId).Returns(@operator);
+            configurationApiService.GetDetailGameConfiguration(request.GameId.Value).ReturnsNull();
+
+            // Act
+            var actual = await memberAuthService.UpdateMemberAuth(request);
+
+            // Assert
+            Assert.Equal(SingleSignOnResult.GameServerNotFoundCode, actual.Code);
+        }
+
+        [Theory]
+        [InlineData("Operator1", "", false, false, 1, "http://local.com")]
+        [InlineData("Operator1", "", false, false, 2, "http://mobi.com")]
+        [InlineData("Operator1", "", false, false, 3, "http://mini.com")]
+        [InlineData("Operator1", "", false, false, 7, "http://direct.com")]
+        [InlineData("Operator1", "", true, false, 1, "http://proxy.local.com/site-")]
+        [InlineData("Operator1", "", true, true, 1, "http://proxy.local.com/site-")]
+        [InlineData("SabaPlay", "", false, true, 1, "http://local.com")]
+        [InlineData("SabaPlay", "iphone", true, true, 1, "http://direct.com")]
+        public async Task UpdateMemberAuth_ValidData_ReturnExpectedUrl(
+            string operatorId,
+            string userAgent,
+            bool isOpenDirectly,
+            bool isSupportPortraitMode,
+            byte appType,
+            string expectedUrl)
+        {
+            // Arrange
+            var request = fixture.Create<UpdatememberAuth>();
+            request.OperatorId = operatorId;
+            request.GameId = 2;
+            var memberAuth = fixture.Create<MemberAuth>();
+            memberAuth.AppType = appType;
+            memberAuth.BrowserUserAgent = userAgent;
+            memberAuth.OperatorId = operatorId;
+            memberAuthDataAccess.GetByToken(Arg.Any<string>()).Returns(memberAuth);
+            operatorDataService.GetById(request.OperatorId).Returns(new Operator
+            {
+                ClubVersionUrl = "http://local.com/",
+                MobiVersionUrl = "http://mobi.com/",
+                MiniVersionUrl = "http://mini.com/",
+                MobileDirectUrl = "http://direct.com/"
+            });
+            configurationApiService.GetDetailGameConfiguration(request.GameId.Value).Returns(new GameConfigurationResponse
+            {
+                IsOpenDirectly = isOpenDirectly,
+                IsSupportedPortraitMode = isSupportPortraitMode,
+                IsMicrosite = true,
+            });
+
+            // Act
+            var actual = await memberAuthService.UpdateMemberAuth(request);
+
+            // Assert
+            Assert.Contains(expectedUrl, actual.RedirectUrl);
         }
     }
 }

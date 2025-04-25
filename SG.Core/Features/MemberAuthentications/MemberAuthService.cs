@@ -17,6 +17,7 @@ namespace SG.Core.Features.MemberAuthentications
     public interface IMemberAuthService
     {
         Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, int? gameTypeId);
+        Task<SingleSignOnResult> UpdateMemberAuth(UpdatememberAuth updateMemberAuthRequest);
     }
 
     public class SiteNames
@@ -67,19 +68,17 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var isTesting = await IsTesting(currency.IsTest, memberAuth.OperatorId, memberAuth.PlayerId);
-            var gameConfiguration = await GetGameConfiguration(gameTypeId);
-            var isOpenDirectly = IsOpenGameDirectly(memberAuth.AppType, gameConfiguration);
-            var shouldUsePortraitOrientation = IsUsePortraitOrientation(memberAuth, gameConfiguration);
-            var gameClientUrl = GetGameClientUrl(@operator, memberAuth.AppType, shouldUsePortraitOrientation);
-            var redirectUrl = GetRedirectedUrl(@operator, isTesting, isOpenDirectly, memberAuth.AppType, shouldUsePortraitOrientation, gameTypeId);
+            var signInContext = await GetSignInContext(memberAuth, @operator, gameTypeId, isTesting);
+            var gameClientUrl = signInContext.GameClientUrl;
+            var redirectUrl = signInContext.RedirectUrl;
+            var isOpenDirectly = signInContext.IsOpenDirect;
 
-            if (redirectUrl == null)
+            if (signInContext.RedirectUrl == null)
             {
                 return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
             }
 
             var (token, isTestCurrency, partnerId) = await GetLatestMemberAuth(memberAuth, currency);
-
 
             var requiredURLParams = new RequiredURLParams
             {
@@ -92,7 +91,6 @@ namespace SG.Core.Features.MemberAuthentications
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
             var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
-            var isStandalone = !isTesting && isOpenDirectly;
 
             var optionalURLParams = new OptionalURLParams
             {
@@ -102,11 +100,53 @@ namespace SG.Core.Features.MemberAuthentications
                 operatorAlias = siteNameOrAlias,
                 partnerId = isTestCurrency ? partnerId : string.Empty,
                 currencyGroup = currencyGroup.Name,
-                isStandalone = isStandalone,
-                lobbyUrl = isStandalone ? gameClientUrl?.ToString()?.TrimEnd('/') : null
+                isStandalone = isOpenDirectly,
+                lobbyUrl = isOpenDirectly ? gameClientUrl?.ToString()?.TrimEnd('/') : null
             };
 
             return CreateSSOResult(requiredURLParams, optionalURLParams);
+        }
+
+        public async Task<SingleSignOnResult> UpdateMemberAuth(UpdatememberAuth updateMemberAuthRequest)
+        {
+            var memberAuth = await memberAuthDataAccess.GetByToken(updateMemberAuthRequest.Token);
+            if(memberAuth == null)
+            {
+                return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize);
+            }
+
+            var @operator = await operatorDataService.GetById(updateMemberAuthRequest.OperatorId);
+            if (@operator == null)
+            {
+                return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
+            }
+
+            var gameId = updateMemberAuthRequest.GameId;
+            var signInContext = await GetSignInContext(memberAuth, @operator, gameId, false);
+            if (signInContext.RedirectUrl == null)
+            {
+                return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.GameServerNotFoundCode);
+            }
+
+            await memberAuthDataAccess.UpdateCurrencyGroup(updateMemberAuthRequest.Token, updateMemberAuthRequest.CurrencyGroupId);
+
+            return SingleSignOnResult.CreateSuccessResponse(signInContext.RedirectUrl.ToString());
+        }
+
+        private async Task<SignInContext> GetSignInContext(MemberAuth memberAuth, Operator @operator, int? gameId, bool isTesting)
+        {
+            var appType = memberAuth.AppType;
+            var gameConfiguration = await GetGameConfiguration(gameId);
+            var isOpenDirectly = IsOpenGameDirectly(appType, gameConfiguration);
+            var shouldUsePortraitOrientation = IsUsePortraitOrientation(memberAuth, gameConfiguration);
+            var gameClientUrl = GetGameClientUrl(@operator, appType, shouldUsePortraitOrientation);
+            var redirectUrl = GetRedirectedUrl(@operator, isTesting, isOpenDirectly, appType, shouldUsePortraitOrientation, gameId);
+            return new SignInContext
+            {
+                IsOpenDirect = isOpenDirectly,
+                GameClientUrl = gameClientUrl,
+                RedirectUrl = redirectUrl
+            };
         }
 
         private static bool IsOpenGameDirectly(byte appType, GameConfigurationResponse gameConfiguration)
@@ -119,7 +159,8 @@ namespace SG.Core.Features.MemberAuthentications
         private static bool IsUsePortraitOrientation(MemberAuth memberAuth, GameConfigurationResponse gameConfiguration)
         {
             var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
-            return memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID 
+            return memberAuth.AppType == AppTypes.SabaClub
+                && memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID 
                 && gameConfiguration?.IsSupportedPortraitMode == true 
                 && deviceType.Equals(DeviceType.Mobile);
 
@@ -304,6 +345,14 @@ namespace SG.Core.Features.MemberAuthentications
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
         }
     }
+
+    class SignInContext
+    {
+        public bool IsOpenDirect { get;set; }
+        public Uri GameClientUrl { get; set; }
+        public Uri RedirectUrl {  get; set; }
+    }
+
     class RequiredURLParams
     {
         public string Token { get; set; }
