@@ -17,7 +17,7 @@ namespace SG.Core.Features.MemberAuthentications
     public interface IMemberAuthService
     {
         Task<SingleSignOnResult> SignIn(MemberAuth memberAuth, int? gameTypeId);
-        Task<SingleSignOnResult> UpdateMemberAuth(UpdatememberAuth updateMemberAuthRequest);
+        Task<SingleSignOnResult> UpdateMemberAuth(UpdateMemberAuth updateMemberAuthRequest);
     }
 
     public class SiteNames
@@ -107,7 +107,7 @@ namespace SG.Core.Features.MemberAuthentications
             return CreateSSOResult(requiredURLParams, optionalURLParams);
         }
 
-        public async Task<SingleSignOnResult> UpdateMemberAuth(UpdatememberAuth updateMemberAuthRequest)
+        public async Task<SingleSignOnResult> UpdateMemberAuth(UpdateMemberAuth updateMemberAuthRequest)
         {
             var memberAuth = await memberAuthDataAccess.GetByToken(updateMemberAuthRequest.Token);
             if(memberAuth == null)

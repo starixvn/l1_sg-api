@@ -250,7 +250,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         }
 
         [Theory, AutoData]
-        public async Task UpdateMemberAuth_NotExistingToken_ReturnUnauthorize(UpdatememberAuth request)
+        public async Task UpdateMemberAuth_NotExistingToken_ReturnUnauthorize(UpdateMemberAuth request)
         {
             // Arrange
             memberAuthDataAccess.GetByToken(request.Token).ReturnsNull();
@@ -263,7 +263,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         }
 
         [Theory, AutoData]
-        public async Task UpdateMemberAuth_NotExistingOperator_ReturnGameServerNotFound(UpdatememberAuth request)
+        public async Task UpdateMemberAuth_NotExistingOperator_ReturnGameServerNotFound(UpdateMemberAuth request)
         {
             // Arrange
             var memberAuth = fixture.Create<MemberAuth>();
@@ -278,7 +278,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         }
 
         [Theory, AutoData]
-        public async Task UpdateMemberAuth_NotRedirectUrl_ReturnGameServerNotFound(UpdatememberAuth request)
+        public async Task UpdateMemberAuth_NotRedirectUrl_ReturnGameServerNotFound(UpdateMemberAuth request)
         {
             // Arrange
             request.GameId = 2;
@@ -315,7 +315,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             string expectedUrl)
         {
             // Arrange
-            var request = fixture.Create<UpdatememberAuth>();
+            var request = fixture.Create<UpdateMemberAuth>();
             request.OperatorId = operatorId;
             request.GameId = 2;
             var memberAuth = fixture.Create<MemberAuth>();

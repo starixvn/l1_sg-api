@@ -23,9 +23,10 @@ namespace SG.Api.Controllers
         [Route("[action]")]
         public async Task<ActionResult<SingleSignOnResult>> Update(UpdateMemberAuthRequest request)
         {
+
             if (await operatorRequestAuthentication.Verify(request.OperatorId, Request))
             {
-                var result = await memberAuthService.UpdateMemberAuth(new UpdatememberAuth(request.Token, 
+                var result = await memberAuthService.UpdateMemberAuth(new UpdateMemberAuth(request.Token, 
                     request.OperatorId, request.CurrencyGroupId, request.GameTypeId));
 
                 return Ok(result);

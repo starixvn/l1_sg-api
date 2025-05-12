@@ -1,8 +1,8 @@
 ﻿namespace SG.Core.Features.MemberAuthentications
 {
-    public class UpdatememberAuth
+    public class UpdateMemberAuth
     {
-        public UpdatememberAuth(string token, string operatorId, string currencyGroupId, int? gameTypeId)
+        public UpdateMemberAuth(string token, string operatorId, string currencyGroupId, int? gameTypeId)
         {
             this.Token = token;
             this.OperatorId = operatorId;

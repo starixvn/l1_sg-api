@@ -47,7 +47,7 @@ namespace SG.Api.Tests.Controllers
             var model = fixture.Create<UpdateMemberAuthRequest>();
             operatorRequestAuthentication.Verify(Arg.Any<string>(), Arg.Any<HttpRequest>()).Returns(true);
             var expected = SingleSignOnResult.CreateSuccessResponse("https://domain.com");
-            memberAuthService.UpdateMemberAuth(Arg.Any<UpdatememberAuth>()).Returns(expected);
+            memberAuthService.UpdateMemberAuth(Arg.Any<UpdateMemberAuth>()).Returns(expected);
 
             // Act
             var actualValue = (await controller.Update(model)).Result as OkObjectResult;
