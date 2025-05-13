@@ -203,9 +203,10 @@ namespace SG.Core.Features.MemberAuthentications
             {
                 return gameClientUrl;
             }
-            return !string.IsNullOrEmpty(returnUrlValue) && Uri.IsWellFormedUriString(returnUrlValue, UriKind.Absolute) 
-                ? new Uri(returnUrlValue) 
-                : null;
+            Uri uri;
+            return !string.IsNullOrWhiteSpace(returnUrlValue) && Uri.TryCreate(returnUrlValue, UriKind.RelativeOrAbsolute, out uri)
+            ? uri
+            : null;
         }
 
         private static string GetSiteNameOrAlias(string siteName, Operator @operator)
