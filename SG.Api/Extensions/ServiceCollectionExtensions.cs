@@ -13,6 +13,7 @@ using SG.Core.Features.DailySummaries;
 using SG.Core.Features.Log;
 using SG.Core.Features.MemberAuthentications;
 using SG.Core.Features.Operators;
+using SG.Core.Features.Promotions;
 using SG.Core.Features.ResultApiCommunicators;
 using SG.Core.Shared.Configurations;
 using SG.Core.Features.User;
@@ -67,6 +68,9 @@ namespace SG.Api.Extensions
 
             services.AddScoped<IUserDataAccess, UserDataAccess>();
             services.AddScoped<IUserDataService, UserDataService>();
+
+            services.AddScoped<IPromotionDataAccess, PromotionDataAccess>();
+            services.AddScoped<IPromotionService, PromotionService>();
         }
 
         public static void AddAppSettings(this IServiceCollection services, IConfiguration configuration)

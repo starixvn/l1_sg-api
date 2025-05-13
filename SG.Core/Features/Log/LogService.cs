@@ -6,6 +6,7 @@ namespace SG.Core.Features.Log
     {
         Task LogRetrieveEndRoundAsync(SBLog log);
         Task LogSignInAsync(SBLog log);
+        Task LogPromotionAsync(SBLog log);
     }
 
     public class LogService : ILogService
@@ -22,5 +23,8 @@ namespace SG.Core.Features.Log
 
         public Task LogSignInAsync(SBLog log)
            => logDataAccess.WriteSignInAsync(log);
+           
+        public Task LogPromotionAsync(SBLog log)
+           => logDataAccess.WritePromotionAsync(log);
     }
 }
