@@ -83,7 +83,7 @@ namespace SG.Core.Features.MemberAuthentications
             var requiredURLParams = new RequiredURLParams
             {
                 AppType = memberAuth.AppType,
-                RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/') ,
+                RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/'),
                 Token = token,
                 Language = memberAuth.Language
             };
@@ -110,7 +110,7 @@ namespace SG.Core.Features.MemberAuthentications
         public async Task<SingleSignOnResult> UpdateMemberAuth(UpdateMemberAuth updateMemberAuthRequest)
         {
             var memberAuth = await memberAuthDataAccess.GetByToken(updateMemberAuthRequest.Token);
-            if(memberAuth == null)
+            if (memberAuth == null)
             {
                 return SingleSignOnResult.CreateErrorResponse(SingleSignOnResult.Unauthorize);
             }
@@ -160,8 +160,8 @@ namespace SG.Core.Features.MemberAuthentications
         {
             var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
             return memberAuth.AppType == AppTypes.SabaClub
-                && memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID 
-                && gameConfiguration?.IsSupportedPortraitMode == true 
+                && memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID
+                && gameConfiguration?.IsSupportedPortraitMode == true
                 && deviceType.Equals(DeviceType.Mobile);
 
         }
@@ -349,9 +349,9 @@ namespace SG.Core.Features.MemberAuthentications
 
     class SignInContext
     {
-        public bool IsOpenDirect { get;set; }
+        public bool IsOpenDirect { get; set; }
         public Uri GameClientUrl { get; set; }
-        public Uri RedirectUrl {  get; set; }
+        public Uri RedirectUrl { get; set; }
     }
 
     class RequiredURLParams

@@ -11,8 +11,9 @@ namespace SG.Core.Shared.Constants
         public const byte SabaApp = 5;
         public const byte DesktopDirect = 6;
         public const byte MobileDirect = 7;
+        public const byte TodayPageDesktopDirect = 8;
 
-        private static readonly byte[] appTypes = { SabaClub, SabaMobi, MiniSabaClub, MegaKeno, SabaApp, DesktopDirect, MobileDirect };
+        private static readonly byte[] appTypes = { SabaClub, SabaMobi, MiniSabaClub, MegaKeno, SabaApp, DesktopDirect, MobileDirect, TodayPageDesktopDirect };
 
         public static bool IsValid(byte appType)
         {
