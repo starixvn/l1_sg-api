@@ -67,6 +67,9 @@ namespace SG.Api.Tests
         {
             // Arrange
             var services = new ServiceCollection();
+            // Register a mock ISentryClient for OperatorRequestAuthentication
+            var sentryClient = Substitute.For<Sentry.ISentryClient>();
+            services.AddSingleton(sentryClient);
 
             // Act
             startup.ConfigureServices(services);
