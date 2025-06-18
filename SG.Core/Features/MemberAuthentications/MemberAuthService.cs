@@ -152,8 +152,8 @@ namespace SG.Core.Features.MemberAuthentications
         private static bool IsOpenGameDirectly(byte appType, GameConfigurationResponse gameConfiguration)
         {
             return appType == AppTypes.SabaClub
-                && gameConfiguration?.IsOpenDirectly == true
-                && gameConfiguration?.IsMicrosite == true;
+                && gameConfiguration?.IsOpenDirectly == true 
+                && gameConfiguration.IsMicrosite == true;
         }
 
         private static bool IsUsePortraitOrientation(MemberAuth memberAuth, GameConfigurationResponse gameConfiguration)
