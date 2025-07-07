@@ -12,9 +12,9 @@ namespace SG.Core.Shared.Constants
         public const byte DesktopDirect = 6;
         public const byte MobileDirect = 7;
         public const byte TodayPageDesktopDirect = 8;
-        public const byte Langlive = 9;
+        public const byte LivestreamingPlatform = 9;
 
-        private static readonly byte[] appTypes = { SabaClub, SabaMobi, MiniSabaClub, MegaKeno, SabaApp, DesktopDirect, MobileDirect, TodayPageDesktopDirect, Langlive };
+        private static readonly byte[] appTypes = { SabaClub, SabaMobi, MiniSabaClub, MegaKeno, SabaApp, DesktopDirect, MobileDirect, TodayPageDesktopDirect, LivestreamingPlatform };
 
         public static bool IsValid(byte appType)
         {

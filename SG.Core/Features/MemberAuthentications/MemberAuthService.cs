@@ -245,7 +245,7 @@ namespace SG.Core.Features.MemberAuthentications
                 AppTypes.SabaMobi => @operator.MobiVersionUrl,
                 AppTypes.MegaKeno => @operator.MegaKenoUrl,
                 AppTypes.MobileDirect => @operator.MobileDirectUrl,
-                AppTypes.Langlive => @operator.LangliveUrl,
+                AppTypes.LivestreamingPlatform => @operator.LivestreamingPlatformUrl,
                 _ => @operator.ClubVersionUrl
             };
             return !string.IsNullOrEmpty(clientUrl) ? new Uri(clientUrl) : null;
