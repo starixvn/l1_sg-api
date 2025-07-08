@@ -67,6 +67,8 @@ namespace SG.Api.Controllers
                     ReturnUrl = model.ReturnUrl,
                     OperatorPlayerId = model.PlayerId.ToString(),
                     DisableAward = model.DisableAward,
+                    PlayerNickname = model.PlayerNickname,
+                    PlayerAvatarUrl = model.PlayerAvatarUrl
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
