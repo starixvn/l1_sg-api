@@ -244,7 +244,9 @@ namespace SG.Core.Features.MemberAuthentications
                 AppTypes.MiniSabaClub => @operator.MiniVersionUrl,
                 AppTypes.SabaMobi => @operator.MobiVersionUrl,
                 AppTypes.MegaKeno => @operator.MegaKenoUrl,
+                AppTypes.DesktopLivePage => @operator.DesktopLiveUrl,
                 AppTypes.MobileDirect => @operator.MobileDirectUrl,
+                AppTypes.DesktopTodayPage => @operator.DesktopTodayUrl,
                 AppTypes.LivestreamingPlatform => @operator.LivestreamingPlatformUrl,
                 _ => @operator.ClubVersionUrl
             };

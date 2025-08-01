@@ -21,7 +21,11 @@ namespace SG.Core.Features.Operators
 
         public string MegaKenoUrl { get; set; }
 
+        public string DesktopLiveUrl { get; set; }
+
         public string MobileDirectUrl { get; set; }
+
+        public string DesktopTodayUrl { get; set; }
 
         public string TestCurrencyUrl { get; set; }
 
