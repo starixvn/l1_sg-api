@@ -246,6 +246,7 @@ namespace SG.Core.Features.MemberAuthentications
                 AppTypes.MegaKeno => @operator.MegaKenoUrl,
                 AppTypes.MobileDirect => @operator.MobileDirectUrl,
                 AppTypes.LivestreamingPlatform => @operator.LivestreamingPlatformUrl,
+                AppTypes.OriginalGames => @operator.OriginalGamesUrl,
                 _ => @operator.ClubVersionUrl
             };
             return !string.IsNullOrEmpty(clientUrl) ? new Uri(clientUrl) : null;
