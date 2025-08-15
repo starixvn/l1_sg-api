@@ -13,7 +13,7 @@ namespace SG.Core.Shared.Constants
         public const byte MobileDirect = 7;
         public const byte TodayPageDesktopDirect = 8;
         public const byte LivestreamingPlatform = 9;
-        public const byte OriginalGames = 10;
+        public const byte OriginalGames = 10; //Add original games app type
 
         private static readonly byte[] appTypes = { SabaClub, SabaMobi, MiniSabaClub, MegaKeno, SabaApp, DesktopDirect, MobileDirect, TodayPageDesktopDirect, LivestreamingPlatform, OriginalGames };
 
