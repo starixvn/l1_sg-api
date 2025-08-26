@@ -83,10 +83,18 @@ namespace SG.Core.Features.MemberAuthentications
             var requiredURLParams = new RequiredURLParams
             {
                 AppType = memberAuth.AppType,
-                RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/'),
                 Token = token,
                 Language = memberAuth.Language
             };
+
+            if (memberAuth.AppType == AppTypes.OriginalGames)
+            {
+                requiredURLParams.RedirectUrl = !isTesting ? $"{redirectUrl}game-{gameTypeId}" : $"{redirectUrl}game-{gameTypeId}".TrimEnd('/');
+            }
+            else
+            {
+                requiredURLParams.RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/');
+            }
 
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
