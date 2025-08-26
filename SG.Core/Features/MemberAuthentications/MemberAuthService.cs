@@ -80,21 +80,7 @@ namespace SG.Core.Features.MemberAuthentications
 
             var (token, isTestCurrency, partnerId) = await GetLatestMemberAuth(memberAuth, currency);
 
-            var requiredURLParams = new RequiredURLParams
-            {
-                AppType = memberAuth.AppType,
-                Token = token,
-                Language = memberAuth.Language
-            };
-
-            if (memberAuth.AppType == AppTypes.OriginalGames)
-            {
-                requiredURLParams.RedirectUrl = !isTesting ? $"{redirectUrl}game-{gameTypeId}" : $"{redirectUrl}game-{gameTypeId}".TrimEnd('/');
-            }
-            else
-            {
-                requiredURLParams.RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/');
-            }
+            var requiredURLParams = BuildRequiredUrlParams(memberAuth, redirectUrl, token, gameTypeId, isTesting);
 
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
@@ -354,6 +340,27 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
+        }
+
+        private static RequiredURLParams BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
+        {
+            var result = new RequiredURLParams
+            {
+                AppType = memberAuth.AppType,
+                Token = token,
+                Language = memberAuth.Language
+            };
+
+            if (memberAuth.AppType == AppTypes.OriginalGames)
+            {
+                result.RedirectUrl = !isTesting ? $"{redirectUrl}game-{gameTypeId}" : $"{redirectUrl}game-{gameTypeId}".TrimEnd('/');
+            }
+            else
+            {
+                result.RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/');
+            }
+
+            return result;
         }
     }
 
