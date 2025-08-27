@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -36,10 +37,12 @@ namespace SG.Api.Controllers
 
         [HttpPost]
         [Route("index")]
+        [SuppressMessage("SonarQube", "S1541", Justification = "Methods and properties should not be too complex")]
         public async Task<IActionResult> Index(SignIn model)
         {
             var requestTime = DateTimeOffset.UtcNow;
 
+           
             if (await operatorDataService.VerifyWithCurrency(model.Auth?.OperatorId, model.Currency)
                 && await operatorRequestAuthentication.Verify(model.Auth?.OperatorId, Request))
             {
@@ -68,7 +71,8 @@ namespace SG.Api.Controllers
                     OperatorPlayerId = model.PlayerId.ToString(),
                     DisableAward = model.DisableAward,
                     PlayerNickname = model.PlayerNickname,
-                    PlayerAvatarUrl = model.PlayerAvatarUrl
+                    PlayerAvatarUrl = model.PlayerAvatarUrl,
+                    GameId = model.GameTypeId ?? 0,
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
