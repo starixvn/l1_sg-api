@@ -343,5 +343,106 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             // Assert
             Assert.Contains(expectedUrl, actual.RedirectUrl);
         }
+
+        [Fact]
+        public void BuildRequiredUrlParams_OriginalGamesApptype_ReturnUrlHasGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.OriginalGames,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private static method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var result = method.Invoke(null, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Assert
+            var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
+            Assert.Contains("game-5", requiredUrlParams);
+        }
+
+        [Fact]
+        public void BuildRequiredUrlParams_NotOriginalGamesApptype_ReturnUrlHasNoGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.SabaClub,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private static method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var result = method.Invoke(null, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Assert
+            var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
+            Assert.DoesNotContain("game-", requiredUrlParams);
+            Assert.Contains("http://example.com/", requiredUrlParams);
+        }
+
+        [Fact]
+        public void BuildRequiredUrlParams_IsTestingWithOriginalGamesApptype_TrimsTrailingSlash()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.OriginalGames,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = true;
+
+            // Act - Using reflection to test the private static method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var result = method.Invoke(null, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Assert
+            var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
+            Assert.Equal("http://example.com/game-5", requiredUrlParams); // TrimEnd('/') removes trailing slash
+        }
+
+        [Fact]
+        public void BuildRequiredUrlParams_IsTestingWithNotOriginalGamesApptype_TrimsTrailingSlash()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.SabaClub,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = true;
+
+            // Act - Using reflection to test the private static method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var result = method.Invoke(null, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Assert
+            var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
+            Assert.Equal("http://example.com", requiredUrlParams);
+        }
     }
 }
