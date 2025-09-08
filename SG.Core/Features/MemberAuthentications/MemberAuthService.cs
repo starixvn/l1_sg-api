@@ -152,18 +152,23 @@ namespace SG.Core.Features.MemberAuthentications
         private static bool IsOpenGameDirectly(byte appType, GameConfigurationResponse gameConfiguration)
         {
             return appType == AppTypes.SabaClub
-                && gameConfiguration?.IsOpenDirectly == true 
+                && gameConfiguration?.IsOpenDirectly == true
                 && gameConfiguration.IsMicrosite == true;
         }
 
         private static bool IsUsePortraitOrientation(MemberAuth memberAuth, GameConfigurationResponse gameConfiguration)
         {
             var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
-            return memberAuth.AppType == AppTypes.SabaClub
-                && memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID
-                && gameConfiguration?.IsSupportedPortraitMode == true
-                && deviceType.Equals(DeviceType.Mobile);
 
+            // Check if this is a SabaClub app with SabaPlay operator
+            var isSabaClubWithSabaPlay = memberAuth.AppType == AppTypes.SabaClub
+                && memberAuth.OperatorId == SABA_PLAY_OPERATOR_ID;
+
+            // Check if portrait mode is supported and either view mode is portrait or device is mobile
+            var isPortraitModeSupported = gameConfiguration?.IsSupportedPortraitMode == true;
+            var isPortraitOrMobile = ViewModes.IsPortrait(memberAuth.ViewMode) || deviceType.Equals(DeviceType.Mobile);
+
+            return isSabaClubWithSabaPlay && isPortraitModeSupported && isPortraitOrMobile;
         }
 
         private async Task<MemberAuth> GetLatestMemberAuth(MemberAuth oldMemberAuth, Currency currency)
@@ -272,6 +277,7 @@ namespace SG.Core.Features.MemberAuthentications
             {
                 return gameClientUrl;
             }
+
             if (isOpenDirectly && gameClientUrl != null)
             {
                 var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));

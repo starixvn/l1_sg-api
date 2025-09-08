@@ -45,5 +45,7 @@ namespace SG.Api.Models
         public string PlayerNickname { get; set; }
 
         public string PlayerAvatarUrl { get; set; }
+
+        public byte ViewMode { get; set; }
     }
 }

@@ -66,6 +66,8 @@ namespace SG.Core.Features.MemberAuthentications
 
         public int GameId { get; set; }
 
+        public byte ViewMode { get; set; }
+
 #pragma warning disable S3874 // "out" and "ref" parameters should not be used
         public void Deconstruct(out string token, out bool isTestCurrency, out string partnerId)
 #pragma warning restore S3874 // "out" and "ref" parameters should not be used

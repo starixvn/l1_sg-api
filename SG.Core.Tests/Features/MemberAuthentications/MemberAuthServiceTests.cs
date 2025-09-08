@@ -298,20 +298,30 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         }
 
         [Theory]
-        [InlineData("Operator1", "", false, false, 1, "http://local.com")]
-        [InlineData("Operator1", "", false, false, 2, "http://mobi.com")]
-        [InlineData("Operator1", "", false, false, 3, "http://mini.com")]
-        [InlineData("Operator1", "", false, false, 7, "http://direct.com")]
-        [InlineData("Operator1", "", true, false, 1, "http://proxy.local.com/site-")]
-        [InlineData("Operator1", "", true, true, 1, "http://proxy.local.com/site-")]
-        [InlineData("SabaPlay", "", false, true, 1, "http://local.com")]
-        [InlineData("SabaPlay", "iphone", true, true, 1, "http://direct.com")]
-        public async Task UpdateMemberAuth_ValidData_ReturnExpectedUrl(
+        [InlineData("Operator1", "", false, false, 1, 0, "http://local.com")]
+        [InlineData("Operator1", "", false, false, 2, 1, "http://mobi.com")]
+        [InlineData("Operator1", "", false, false, 3, 2, "http://mini.com")]
+        [InlineData("Operator1", "", false, false, 7, 3, "http://direct.com")]
+        [InlineData("Operator1", "", true, false, 1, 0, "http://proxy.local.com/site-2")]
+        [InlineData("Operator1", "", true, true, 1, 1, "http://proxy.local.com/site-")]
+        [InlineData("SabaPlay", "", false, true, 1, 2, "http://direct.com")]
+        [InlineData("SabaPlay", "iphone", true, true, 1, 3, "http://direct.com")]
+        // Additional ViewMode test cases
+        [InlineData("Operator1", "", false, false, 1, 1, "http://local.com")]
+        [InlineData("Operator1", "", false, false, 2, 2, "http://mobi.com")]
+        [InlineData("Operator1", "", false, false, 3, 3, "http://mini.com")]
+        [InlineData("Operator1", "", false, false, 7, 0, "http://direct.com")]
+        [InlineData("Operator1", "", true, false, 1, 2, "http://proxy.local.com/site-2")]
+        [InlineData("Operator1", "", true, true, 1, 3, "http://proxy.local.com/site-")]
+        [InlineData("SabaPlay", "", false, true, 1, 0, "http://local.com")]
+        [InlineData("SabaPlay", "iphone", true, true, 1, 1, "http://direct.com")]
+        public async Task UpdateMemberAuth_ValidData_WithViewMode_ReturnExpectedUrl(
             string operatorId,
             string userAgent,
             bool isOpenDirectly,
             bool isSupportPortraitMode,
             byte appType,
+            byte viewMode,
             string expectedUrl)
         {
             // Arrange
@@ -322,6 +332,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             memberAuth.AppType = appType;
             memberAuth.BrowserUserAgent = userAgent;
             memberAuth.OperatorId = operatorId;
+            memberAuth.ViewMode = viewMode;
             memberAuthDataAccess.GetByToken(Arg.Any<string>()).Returns(memberAuth);
             operatorDataService.GetById(request.OperatorId).Returns(new Operator
             {

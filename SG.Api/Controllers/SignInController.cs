@@ -73,6 +73,7 @@ namespace SG.Api.Controllers
                     PlayerNickname = model.PlayerNickname,
                     PlayerAvatarUrl = model.PlayerAvatarUrl,
                     GameId = model.GameTypeId ?? 0,
+                    ViewMode = model.ViewMode
                 }, model.GameTypeId);
 
                 await WriteSignInLog(requestTime, model, result);
