@@ -263,18 +263,27 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var gameClientUrl = GetGameClientUrl(@operator, appType, shouldUsePortraitOrientation);
-            if (shouldUsePortraitOrientation)
+
+            try
             {
+                if (shouldUsePortraitOrientation)
+                {
+                    return gameClientUrl;
+                }
+                if (isOpenDirectly && gameClientUrl != null)
+                {
+                    var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));
+                    var uri = new Uri(url);
+                    return new Uri(uri, $"{uri.LocalPath.TrimEnd('/')}/site-{gameId}/");
+                }
+
                 return gameClientUrl;
             }
-            if (isOpenDirectly && gameClientUrl != null)
+            catch (Exception ex)
             {
-                var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));
-                var uri = new Uri(url);
-                return new Uri(uri, $"{uri.LocalPath.TrimEnd('/')}/site-{gameId}/");
+                Sentry.SentrySdk.CaptureException(ex);
+                return gameClientUrl;
             }
-
-            return gameClientUrl;
         }
 
         private static SingleSignOnResult CreateSSOResult(RequiredURLParams requiredURLParams, OptionalURLParams optionalURLParams)
