@@ -344,21 +344,17 @@ namespace SG.Core.Features.MemberAuthentications
 
         private static RequiredURLParams BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
         {
+            var baseRedirectUrl = (AppTypes.OriginalGames == memberAuth.AppType)
+                ? $"{redirectUrl}game-{gameTypeId}"
+                : redirectUrl.ToString();
+
             var result = new RequiredURLParams
             {
                 AppType = memberAuth.AppType,
                 Token = token,
-                Language = memberAuth.Language
+                Language = memberAuth.Language,
+                RedirectUrl = isTesting ? baseRedirectUrl.TrimEnd('/') : baseRedirectUrl
             };
-
-            if (memberAuth.AppType == AppTypes.OriginalGames)
-            {
-                result.RedirectUrl = !isTesting ? $"{redirectUrl}game-{gameTypeId}" : $"{redirectUrl}game-{gameTypeId}".TrimEnd('/');
-            }
-            else
-            {
-                result.RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/');
-            }
 
             return result;
         }
