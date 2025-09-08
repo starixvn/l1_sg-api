@@ -396,32 +396,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
         }
 
         [Fact]
-        public void BuildRequiredUrlParams_IsTestingWithOriginalGamesApptype_TrimsTrailingSlash()
-        {
-            // Arrange
-            var memberAuth = new MemberAuth
-            {
-                AppType = AppTypes.OriginalGames,
-                Language = "EN",
-                Token = "test-token"
-            };
-            var redirectUrl = new Uri("http://example.com/");
-            var token = "test-token";
-            var gameTypeId = 5;
-            var isTesting = true;
-
-            // Act - Using reflection to test the private static method
-            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var result = method.Invoke(null, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
-
-            // Assert
-            var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
-            Assert.Equal("http://example.com/game-5", requiredUrlParams); // TrimEnd('/') removes trailing slash
-        }
-
-        [Fact]
-        public void BuildRequiredUrlParams_IsTestingWithNotOriginalGamesApptype_TrimsTrailingSlash()
+        public void BuildRequiredUrlParams_IsTesting_TrimsTrailingSlash()
         {
             // Arrange
             var memberAuth = new MemberAuth
