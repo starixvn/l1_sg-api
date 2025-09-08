@@ -344,8 +344,8 @@ namespace SG.Core.Features.MemberAuthentications
 
         private static RequiredURLParams BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
         {
-            var baseRedirectUrl = (AppTypes.OriginalGames == memberAuth.AppType)
-                ? $"{redirectUrl}game-{gameTypeId}"
+            var baseRedirectUrl = (memberAuth.AppType == AppTypes.OriginalGames)
+                ? $"{redirectUrl}game-{gameTypeId}/"
                 : redirectUrl.ToString();
 
             var result = new RequiredURLParams

@@ -366,7 +366,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
 
             // Assert
             var requiredUrlParams = result.GetType().GetProperty("RedirectUrl").GetValue(result).ToString();
-            Assert.Contains("game-5", requiredUrlParams);
+            Assert.Contains("game-5/", requiredUrlParams);
         }
 
         [Fact]
