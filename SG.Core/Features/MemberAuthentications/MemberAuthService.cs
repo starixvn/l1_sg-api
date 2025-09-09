@@ -146,7 +146,7 @@ namespace SG.Core.Features.MemberAuthentications
         private static bool IsOpenGameDirectly(byte appType, GameConfigurationResponse gameConfiguration)
         {
             return appType == AppTypes.SabaClub
-                && gameConfiguration?.IsOpenDirectly == true 
+                && gameConfiguration?.IsOpenDirectly == true
                 && gameConfiguration.IsMicrosite == true;
         }
 
@@ -270,6 +270,12 @@ namespace SG.Core.Features.MemberAuthentications
                 {
                     return gameClientUrl;
                 }
+
+                if (appSettings.MicrositeClientPatternDomain == null)
+                {
+                    throw new InvalidOperationException("MicrositeClientPatternDomain is not configured");
+                }
+
                 if (isOpenDirectly && gameClientUrl != null)
                 {
                     var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));
