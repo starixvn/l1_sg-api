@@ -80,7 +80,7 @@ namespace SG.Core.Features.MemberAuthentications
 
             var (token, isTestCurrency, partnerId) = await GetLatestMemberAuth(memberAuth, currency);
 
-            var requiredURLParams = BuildRequiredUrlParams(memberAuth, redirectUrl, token, gameTypeId, isTesting);
+            var requiredURLParams = await BuildRequiredUrlParams(memberAuth, redirectUrl, token, gameTypeId, isTesting);
 
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
@@ -357,11 +357,44 @@ namespace SG.Core.Features.MemberAuthentications
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
         }
 
-        private static RequiredURLParams BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
+        private async Task<RequiredURLParams> BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
         {
-            var baseRedirectUrl = (memberAuth.AppType == AppTypes.OriginalGames)
-                ? $"{redirectUrl}game-{gameTypeId}/"
-                : redirectUrl.ToString();
+            string baseRedirectUrl;
+
+            if (memberAuth.AppType == AppTypes.OriginalGames)
+            {
+                var gameConfiguration = await GetGameConfiguration(gameTypeId);
+
+                if (gameConfiguration?.IsResponsive == true)
+                {
+                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}/";
+                }
+                else
+                {
+                    var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
+
+                    string deviceSuffix;
+
+                    switch (deviceType)
+                    {
+                        case DeviceType.Mobile:
+                            deviceSuffix = "-m";
+                            break;
+                        case DeviceType.Desktop:
+                            deviceSuffix = "-d";
+                            break;
+                        default:
+                            deviceSuffix = string.Empty;
+                            break;
+                    }
+
+                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}{deviceSuffix}/";
+                }
+            }
+            else
+            {
+                baseRedirectUrl = redirectUrl.ToString();
+            }
 
             var result = new RequiredURLParams
             {

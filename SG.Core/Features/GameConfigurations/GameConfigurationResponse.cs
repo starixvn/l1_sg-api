@@ -8,5 +8,6 @@
         public bool? IsMicrosite { get; set; }
         public bool? IsOpenDirectly { get; set; }
         public bool? IsSupportedPortraitMode { get; set; }
+        public bool? IsResponsive { get; set; }
     }
 }
