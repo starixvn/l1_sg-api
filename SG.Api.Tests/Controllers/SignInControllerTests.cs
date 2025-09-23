@@ -127,13 +127,13 @@ namespace SG.Api.Tests.Controllers
 
             var result = fixture.Create<SingleSignOnResult>();
             var formattedPlayerId = string.Empty;
-            memberAuthService.SignIn(Arg.Do<MemberAuth>(x => formattedPlayerId =  x.PlayerId), Arg.Any<int>()).Returns(result);
+            memberAuthService.SignIn(Arg.Do<MemberAuth>(x => formattedPlayerId = x.PlayerId), Arg.Any<int>()).Returns(result);
 
             // Act
             var actualValue = await controller.Index(model) as OkObjectResult;
 
             // Assert
-            Assert.Equal(StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId.ToString()), formattedPlayerId);
+            Assert.Equal(StringFormat.FormatPlayerId(model.Auth.OperatorId, model.SiteId, model.PlayerId), formattedPlayerId);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace SG.Api.Tests.Controllers
         {
             // Arrange
             var model = fixture.Create<SignIn>();
-            model.PlayerId = 12345;  // Int type for PlayerId
+            model.PlayerId = "12345";  // String type for PlayerId
             model.Auth = new Auth { OperatorId = "ONEworks1" };
 
             operatorDataService.VerifyWithCurrency(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
@@ -176,23 +176,15 @@ namespace SG.Api.Tests.Controllers
 
             // Assert
             Assert.NotNull(actualValue);
-            await logService.Received(1).LogSignInAsync(Arg.Is<SBLog>(log => VerifyLog(log, result, 12345)));
+            await logService.Received(1).LogSignInAsync(Arg.Is<SBLog>(log => VerifyLog(log, result, "12345")));
         }
-   
-        private static bool VerifyLog(SBLog log, SingleSignOnResult result, object playerId)
+
+
+        private static bool VerifyLog(SBLog log, SingleSignOnResult result, string playerId)
         {
             if (log.Request is SignIn signInRequest)
             {
-                var requestPlayerId = signInRequest.PlayerId;
-                if (playerId is int)
-                {
-                    return (int)requestPlayerId == (int)playerId && log.Result == result;
-                }
-
-                if (playerId is string)
-                {
-                    return (string)requestPlayerId == (string)playerId && log.Result == result;
-                }
+                return signInRequest.PlayerId == playerId && log.Result == result;
             }
 
             return false;

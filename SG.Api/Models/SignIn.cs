@@ -17,8 +17,7 @@ namespace SG.Api.Models
 
         public string IP { get; set; }
 
-        [JsonConverter(typeof(PlayerIdConverter))]
-        public object PlayerId { get; set; }
+        public string PlayerId { get; set; }
 
         public string PlayerName { get; set; }
 
