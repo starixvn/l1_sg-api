@@ -4,7 +4,7 @@ namespace SG.Core.Features.EndRoundInfo
 {
     public class EndRoundInfoRequest
     {
-        public EndRoundInfoRequest(int gameRoundId, int gameTypeId, string playerId, string operatorId, string operatorSecret, string siteId, bool? freeBet)
+        public EndRoundInfoRequest(long gameRoundId, int gameTypeId, string playerId, string operatorId, string operatorSecret, string siteId, bool? freeBet)
         {
             GameRoundId = gameRoundId;
             GameTypeId = gameTypeId;
@@ -18,7 +18,7 @@ namespace SG.Core.Features.EndRoundInfo
             SiteId = siteId;
         }
 
-        public int GameRoundId { get; }
+        public long GameRoundId { get; }
 
         public int GameTypeId { get; }
 

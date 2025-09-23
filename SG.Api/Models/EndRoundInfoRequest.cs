@@ -10,7 +10,7 @@ namespace SG.Api.Models
         public Auth Auth { get; set; }
 
         [Required]
-        public int GameRoundId { get; set; }
+        public long GameRoundId { get; set; }
 
         [Required]
         public int GameTypeId { get; set; }
