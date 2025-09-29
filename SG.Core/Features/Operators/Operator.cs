@@ -27,6 +27,8 @@ namespace SG.Core.Features.Operators
 
         public string LivestreamingPlatformUrl { get; set; }
 
+        public string OriginalGamesUrl { get; set; }
+
         public string Alias { get; set; }
     }
 }

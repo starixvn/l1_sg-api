@@ -343,5 +343,168 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             // Assert
             Assert.Contains(expectedUrl, actual.RedirectUrl);
         }
+
+        [Fact]
+        public async Task BuildRequiredUrlParams_OriginalGamesApptype_WithUnknownDevice_ReturnUrlHasGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.OriginalGames,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private async method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var task = method.Invoke(memberAuthService, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Get the result using reflection to avoid RequiredURLParams access issue
+            var resultTask = (Task)task;
+            await resultTask;
+            var resultProperty = resultTask.GetType().GetProperty("Result");
+            var resultObject = resultProperty.GetValue(resultTask);
+            var redirectUrlProperty = resultObject.GetType().GetProperty("RedirectUrl");
+            var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
+
+            // Assert
+            Assert.Contains("game-5/", redirectUrlValue);
+        }
+
+        [Fact]
+        public async Task BuildRequiredUrlParams_OriginalGamesApptype_WithMobileDevice_ReturnUrlHasMobileGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.OriginalGames,
+                Language = "EN",
+                Token = "test-token",
+                BrowserUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private async method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var task = method.Invoke(memberAuthService, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Get the result using reflection to avoid RequiredURLParams access issue
+            var resultTask = (Task)task;
+            await resultTask;
+            var resultProperty = resultTask.GetType().GetProperty("Result");
+            var resultObject = resultProperty.GetValue(resultTask);
+            var redirectUrlProperty = resultObject.GetType().GetProperty("RedirectUrl");
+            var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
+
+            // Assert
+            Assert.Contains("game-5-m/", redirectUrlValue);
+        }
+
+        [Fact]
+        public async Task BuildRequiredUrlParams_OriginalGamesApptype_WithDesktopDevice_ReturnUrlHasDesktopGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.OriginalGames,
+                Language = "EN",
+                Token = "test-token",
+                BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private async method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var task = method.Invoke(memberAuthService, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Get the result using reflection to avoid RequiredURLParams access issue
+            var resultTask = (Task)task;
+            await resultTask;
+            var resultProperty = resultTask.GetType().GetProperty("Result");
+            var resultObject = resultProperty.GetValue(resultTask);
+            var redirectUrlProperty = resultObject.GetType().GetProperty("RedirectUrl");
+            var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
+
+            // Assert
+            Assert.Contains("game-5-d/", redirectUrlValue);
+        }
+
+        [Fact]
+        public async Task BuildRequiredUrlParams_NotOriginalGamesApptype_ReturnUrlHasNoGamePath()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.SabaClub,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = false;
+
+            // Act - Using reflection to test the private async method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var task = method.Invoke(memberAuthService, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Get the result using reflection to avoid RequiredURLParams access issue
+            var resultTask = (Task)task;
+            await resultTask;
+            var resultProperty = resultTask.GetType().GetProperty("Result");
+            var resultObject = resultProperty.GetValue(resultTask);
+            var redirectUrlProperty = resultObject.GetType().GetProperty("RedirectUrl");
+            var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
+
+            // Assert
+            Assert.DoesNotContain("game-", redirectUrlValue);
+            Assert.Contains("http://example.com/", redirectUrlValue);
+        }
+
+        [Fact]
+        public async Task BuildRequiredUrlParams_IsTesting_TrimsTrailingSlash()
+        {
+            // Arrange
+            var memberAuth = new MemberAuth
+            {
+                AppType = AppTypes.SabaClub,
+                Language = "EN",
+                Token = "test-token"
+            };
+            var redirectUrl = new Uri("http://example.com/");
+            var token = "test-token";
+            var gameTypeId = 5;
+            var isTesting = true;
+
+            // Act - Using reflection to test the private async method
+            var method = typeof(MemberAuthService).GetMethod("BuildRequiredUrlParams",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var task = method.Invoke(memberAuthService, new object[] { memberAuth, redirectUrl, token, gameTypeId, isTesting });
+
+            // Get the result using reflection to avoid RequiredURLParams access issue
+            var resultTask = (Task)task;
+            await resultTask;
+            var resultProperty = resultTask.GetType().GetProperty("Result");
+            var resultObject = resultProperty.GetValue(resultTask);
+            var redirectUrlProperty = resultObject.GetType().GetProperty("RedirectUrl");
+            var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
+
+            // Assert
+            Assert.Equal("http://example.com", redirectUrlValue);
+        }
     }
 }

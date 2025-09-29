@@ -80,13 +80,7 @@ namespace SG.Core.Features.MemberAuthentications
 
             var (token, isTestCurrency, partnerId) = await GetLatestMemberAuth(memberAuth, currency);
 
-            var requiredURLParams = new RequiredURLParams
-            {
-                AppType = memberAuth.AppType,
-                RedirectUrl = !isTesting ? redirectUrl.ToString() : redirectUrl.ToString().TrimEnd('/'),
-                Token = token,
-                Language = memberAuth.Language
-            };
+            var requiredURLParams = await BuildRequiredUrlParams(memberAuth, redirectUrl, token, gameTypeId, isTesting);
 
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
             var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
@@ -152,7 +146,7 @@ namespace SG.Core.Features.MemberAuthentications
         private static bool IsOpenGameDirectly(byte appType, GameConfigurationResponse gameConfiguration)
         {
             return appType == AppTypes.SabaClub
-                && gameConfiguration?.IsOpenDirectly == true 
+                && gameConfiguration?.IsOpenDirectly == true
                 && gameConfiguration.IsMicrosite == true;
         }
 
@@ -246,6 +240,7 @@ namespace SG.Core.Features.MemberAuthentications
                 AppTypes.MegaKeno => @operator.MegaKenoUrl,
                 AppTypes.MobileDirect => @operator.MobileDirectUrl,
                 AppTypes.LivestreamingPlatform => @operator.LivestreamingPlatformUrl,
+                AppTypes.OriginalGames => @operator.OriginalGamesUrl,
                 _ => @operator.ClubVersionUrl
             };
             return !string.IsNullOrEmpty(clientUrl) ? new Uri(clientUrl) : null;
@@ -268,18 +263,33 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             var gameClientUrl = GetGameClientUrl(@operator, appType, shouldUsePortraitOrientation);
-            if (shouldUsePortraitOrientation)
+
+            try
             {
+                if (shouldUsePortraitOrientation)
+                {
+                    return gameClientUrl;
+                }
+
+                if (appSettings.MicrositeClientPatternDomain == null)
+                {
+                    throw new InvalidOperationException("MicrositeClientPatternDomain is not configured");
+                }
+
+                if (isOpenDirectly && gameClientUrl != null)
+                {
+                    var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));
+                    var uri = new Uri(url);
+                    return new Uri(uri, $"{uri.LocalPath.TrimEnd('/')}/site-{gameId}/");
+                }
+
                 return gameClientUrl;
             }
-            if (isOpenDirectly && gameClientUrl != null)
+            catch (Exception ex)
             {
-                var url = appSettings.MicrositeClientPatternDomain.Replace("{host}", GetRootDomain(gameClientUrl.ToString()));
-                var uri = new Uri(url);
-                return new Uri(uri, $"{uri.LocalPath.TrimEnd('/')}/site-{gameId}/");
+                Sentry.SentrySdk.CaptureException(ex);
+                return gameClientUrl;
             }
-
-            return gameClientUrl;
         }
 
         private static SingleSignOnResult CreateSSOResult(RequiredURLParams requiredURLParams, OptionalURLParams optionalURLParams)
@@ -345,6 +355,56 @@ namespace SG.Core.Features.MemberAuthentications
             }
 
             return SingleSignOnResult.CreateSuccessResponse(clientRedirectUrl.ToString(), token);
+        }
+
+        private async Task<RequiredURLParams> BuildRequiredUrlParams(MemberAuth memberAuth, Uri redirectUrl, string token, int? gameTypeId, bool isTesting)
+        {
+            string baseRedirectUrl;
+
+            if (memberAuth.AppType == AppTypes.OriginalGames)
+            {
+                var gameConfiguration = await GetGameConfiguration(gameTypeId);
+
+                if (gameConfiguration?.IsResponsive == true)
+                {
+                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}/";
+                }
+                else
+                {
+                    var deviceType = DeviceTypeHelper.GetDeviceType(memberAuth.BrowserUserAgent);
+
+                    string deviceSuffix;
+
+                    switch (deviceType)
+                    {
+                        case DeviceType.Mobile:
+                            deviceSuffix = "-m";
+                            break;
+                        case DeviceType.Desktop:
+                            deviceSuffix = "-d";
+                            break;
+                        default:
+                            deviceSuffix = string.Empty;
+                            break;
+                    }
+
+                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}{deviceSuffix}/";
+                }
+            }
+            else
+            {
+                baseRedirectUrl = redirectUrl.ToString();
+            }
+
+            var result = new RequiredURLParams
+            {
+                AppType = memberAuth.AppType,
+                Token = token,
+                Language = memberAuth.Language,
+                RedirectUrl = isTesting ? baseRedirectUrl.TrimEnd('/') : baseRedirectUrl
+            };
+
+            return result;
         }
     }
 
