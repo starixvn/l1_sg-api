@@ -16,8 +16,7 @@ namespace SG.Api.Models
         public int GameTypeId { get; set; }
 
         [Required]
-        [JsonConverter(typeof(PlayerIdConverter))]
-        public object PlayerId { get; set; }
+        public string PlayerId { get; set; }
 
         public bool FreeBet { get; set; }
     }
