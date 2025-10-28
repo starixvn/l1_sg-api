@@ -373,7 +373,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
 
             // Assert
-            Assert.Contains("game-5/", redirectUrlValue);
+            Assert.Contains("site-5/", redirectUrlValue);
         }
 
         [Fact]
@@ -406,7 +406,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
 
             // Assert
-            Assert.Contains("game-5-m/", redirectUrlValue);
+            Assert.Contains("site-5-m/", redirectUrlValue);
         }
 
         [Fact]
@@ -439,7 +439,7 @@ namespace SG.Core.Tests.Features.MemberAuthentications
             var redirectUrlValue = (string)redirectUrlProperty.GetValue(resultObject);
 
             // Assert
-            Assert.Contains("game-5-d/", redirectUrlValue);
+            Assert.Contains("site-5-d/", redirectUrlValue);
         }
 
         [Fact]

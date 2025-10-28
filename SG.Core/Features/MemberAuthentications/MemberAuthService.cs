@@ -367,7 +367,7 @@ namespace SG.Core.Features.MemberAuthentications
 
                 if (gameConfiguration?.IsResponsive == true)
                 {
-                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}/";
+                    baseRedirectUrl = $"{redirectUrl}site-{gameTypeId}/";
                 }
                 else
                 {
@@ -388,7 +388,7 @@ namespace SG.Core.Features.MemberAuthentications
                             break;
                     }
 
-                    baseRedirectUrl = $"{redirectUrl}game-{gameTypeId}{deviceSuffix}/";
+                    baseRedirectUrl = $"{redirectUrl}site-{gameTypeId}{deviceSuffix}/";
                 }
             }
             else
