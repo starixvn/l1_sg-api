@@ -75,6 +75,6 @@ namespace SG.Core.Features.MemberAuthentications
             partnerId = OperatorId;
         }
 
-        public decimal XMode { get; set; }
+        public int XMode { get; set; }
     }
 }

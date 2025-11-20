@@ -45,6 +45,6 @@ namespace SG.Api.Models
 
         public string PlayerAvatarUrl { get; set; }
 
-        public decimal XMode { get; set; } = 1;
+        public int XMode { get; set; } = 1;
     }
 }
