@@ -45,7 +45,7 @@ namespace SG.Core.Features.MemberAuthentications
                 builder.Eq(x => x.Language, memberAuth.Language) &
                 builder.Eq(x => x.CurrencyName, memberAuth.CurrencyName) &
                 builder.Eq(x => x.GameId, memberAuth.GameId) &
-                builder.Eq(x => x.OperatorToken, memberAuth.OperatorToken);
+                builder.Eq(x => x.OperatorToken, memberAuth.OperatorToken) &
                 builder.Eq(x => x.XMode, memberAuth.XMode);
 
             var options = new FindOptions<MemberAuth, MemberAuth>
