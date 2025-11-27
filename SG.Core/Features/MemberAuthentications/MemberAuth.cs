@@ -74,5 +74,7 @@ namespace SG.Core.Features.MemberAuthentications
             isTestCurrency = IsTestCurrency;
             partnerId = OperatorId;
         }
+
+        public int XMode { get; set; }
     }
 }
