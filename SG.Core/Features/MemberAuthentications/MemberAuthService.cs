@@ -83,7 +83,7 @@ namespace SG.Core.Features.MemberAuthentications
             var requiredURLParams = await BuildRequiredUrlParams(memberAuth, redirectUrl, token, gameTypeId, isTesting);
 
             var currencyGroup = await currencyGroupDataService.GetById(currency.GroupId);
-            var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator);
+            var siteNameOrAlias = GetSiteNameOrAlias(memberAuth.SiteName, @operator, memberAuth.AppType);
             var returnUrl = GetReturnUrl(gameClientUrl, memberAuth.Ref, memberAuth.ReturnUrl, isOpenDirectly);
 
             var optionalURLParams = new OptionalURLParams
@@ -203,10 +203,15 @@ namespace SG.Core.Features.MemberAuthentications
             : null;
         }
 
-        private static string GetSiteNameOrAlias(string siteName, Operator @operator)
+        private static string GetSiteNameOrAlias(string siteName, Operator @operator, byte appType)
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"sitename-config.json");
             var siteNames = LoadSiteNamesFromFile(filePath);
+            var originalSites = new List<string>{"12BET", "NOVA88" };
+            if (appType == AppTypes.OriginalGames && originalSites.Exists(site => siteName.ToUpperInvariant() == site))
+            {
+                return siteName;
+            }
             if (siteName.ToUpperInvariant() == "TIP88")
             {
                 return siteName;
@@ -232,17 +237,22 @@ namespace SG.Core.Features.MemberAuthentications
 
         private static Uri GetGameClientUrl(Operator @operator, byte appType, bool shouldUsePortraitOrientation)
         {
-            var clientUrl = appType switch
-            {
-                AppTypes.SabaClub => shouldUsePortraitOrientation ? @operator.MobileDirectUrl : @operator.ClubVersionUrl,
-                AppTypes.MiniSabaClub => @operator.MiniVersionUrl,
-                AppTypes.SabaMobi => @operator.MobiVersionUrl,
-                AppTypes.MegaKeno => @operator.MegaKenoUrl,
-                AppTypes.MobileDirect => @operator.MobileDirectUrl,
-                AppTypes.LivestreamingPlatform => @operator.LivestreamingPlatformUrl,
-                AppTypes.OriginalGames => @operator.OriginalGamesUrl,
-                _ => @operator.ClubVersionUrl
-            };
+            var clientUrl = string.Empty;
+            if (appType == AppTypes.SabaClub){
+                clientUrl = shouldUsePortraitOrientation ? @operator.MobileDirectUrl : @operator.ClubVersionUrl;
+            }
+            else{
+                var appTypeUrlMap = new Dictionary<byte, string>
+                {
+                    { AppTypes.MiniSabaClub, @operator.MiniVersionUrl },
+                    { AppTypes.SabaMobi, @operator.MobiVersionUrl },
+                    { AppTypes.MegaKeno, @operator.MegaKenoUrl },
+                    { AppTypes.MobileDirect, @operator.MobileDirectUrl },
+                    { AppTypes.LivestreamingPlatform, @operator.LivestreamingPlatformUrl },
+                    { AppTypes.OriginalGames, @operator.OriginalGamesUrl }
+                };
+                clientUrl = appTypeUrlMap.TryGetValue(appType, out var url) ? url : @operator.ClubVersionUrl;
+            }
             return !string.IsNullOrEmpty(clientUrl) ? new Uri(clientUrl) : null;
         }
 
